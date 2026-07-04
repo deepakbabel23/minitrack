@@ -33,3 +33,6 @@ env/
 # Test / tooling caches
 .pytest_cache/
 .coverage
+
+# Claude Code — personal/machine-local settings (shared settings.json IS tracked)
+.claude/settings.local.json
