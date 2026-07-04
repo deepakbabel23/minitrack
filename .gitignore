@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# SQLite database (created on first run)
+minitrack.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Test / tooling caches
+.pytest_cache/
+.coverage
