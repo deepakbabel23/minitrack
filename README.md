@@ -27,17 +27,50 @@ minitrack/
 ```
 
 ## Run it
+
+**Requires Python 3.11, 3.12, or 3.13.** Newer versions (3.14+) don't yet have
+prebuilt wheels for the pinned `pydantic`, so `pip install` would try to compile it
+from source and fail; older versions lack features the app relies on. The included
+`.python-version` file pins **3.12** for pyenv/uv/asdf users, so those tools pick a
+supported interpreter automatically.
+
+Check your version first:
 ```bash
-python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
+python3 --version    # Windows: py --list
+```
+
+Then create a virtual environment, install, and run — pick your OS:
+
+### macOS / Linux
+```bash
+python3.12 -m venv .venv          # or python3.11 / python3.13
+source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
+
+### Windows (PowerShell)
+```powershell
+py -3.12 -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
 Open the interactive docs at **http://127.0.0.1:8000/docs**.
 
 Optional — load a few demo tasks:
 ```bash
 python seed_data.py
 ```
+
+### Troubleshooting
+- **`Failed building wheel for pydantic-core`** / `the configured Python interpreter
+  version (3.14) is newer than PyO3's maximum supported version (3.13)` — your default
+  Python is 3.14+. Create the venv with a supported interpreter explicitly
+  (`python3.12 -m venv .venv`, or `py -3.12 -m venv .venv` on Windows) and reinstall.
+  After switching interpreters, delete the old environment first (`rm -rf .venv`, or
+  `Remove-Item -Recurse -Force .venv` on Windows) so it's rebuilt against the new Python.
 
 ## Endpoints (as shipped)
 | Method | Path | Notes |
