@@ -1,0 +1,18 @@
+.wrap {
+  max-width: 640px;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.back:hover {
+  color: var(--color-primary);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-4);
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useLocation } from 'react-router-dom'
 import type { Task } from '../../types'
 import { listTasks, completeTask, deleteTask } from '../../api/tasks'
 import { ApiClientError } from '../../api/client'
@@ -60,6 +60,15 @@ export default function TaskListPage() {
   // Bumping this forces the loader to re-run (used by the "Try again" button,
   // where the filter itself hasn't changed).
   const [reloadKey, setReloadKey] = useState(0)
+  // A one-off confirmation handed over via navigation state (e.g. after create).
+  const location = useLocation()
+  const [flash, setFlash] = useState<string | null>(
+    () => (location.state as { flash?: string } | null)?.flash ?? null,
+  )
+  // Drop it from history so a refresh or back-navigation won't replay it.
+  useEffect(() => {
+    if (flash) window.history.replaceState(null, '')
+  }, [flash])
 
   // Load the first page whenever the filter changes — this resets pagination.
   useEffect(() => {
@@ -103,6 +112,7 @@ export default function TaskListPage() {
   }
 
   function changeFilter(next: StatusFilter) {
+    setFlash(null)
     setSearchParams(next === 'all' ? {} : { status: next }, { replace: true })
   }
 
@@ -143,6 +153,11 @@ export default function TaskListPage() {
 
   return (
     <div>
+      {flash && (
+        <p className={styles.flash} role="status">
+          {flash}
+        </p>
+      )}
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Tasks</h1>
