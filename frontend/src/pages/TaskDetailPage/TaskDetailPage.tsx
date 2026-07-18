@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Task } from '../../types'
 import { getTask, completeTask, deleteTask } from '../../api/tasks'
 import { ApiClientError } from '../../api/client'
+import { toDisplayError, type DisplayError } from '../../api/errors'
 import PriorityBadge from '../../components/PriorityBadge/PriorityBadge'
 import StatusBadge from '../../components/StatusBadge/StatusBadge'
 import Button from '../../components/Button/Button'
@@ -19,15 +20,6 @@ type LoadState =
   | { status: 'notfound' }
   | { status: 'error'; message: string; requestId: string | null }
 
-interface ActionError {
-  message: string
-  requestId: string | null
-}
-function toActionError(err: unknown): ActionError {
-  if (err instanceof ApiClientError) return { message: err.detail, requestId: err.requestId }
-  return { message: 'Something went wrong. Please try again.', requestId: null }
-}
-
 export default function TaskDetailPage() {
   const { taskId } = useParams()
   const id = Number(taskId)
@@ -37,7 +29,7 @@ export default function TaskDetailPage() {
   const [reloadKey, setReloadKey] = useState(0)
   const [busy, setBusy] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
-  const [actionError, setActionError] = useState<ActionError | null>(null)
+  const [actionError, setActionError] = useState<DisplayError | null>(null)
   const flash = useFlash()
 
   useEffect(() => {
@@ -56,10 +48,8 @@ export default function TaskDetailPage() {
         if (cancelled) return
         if (err instanceof ApiClientError && err.status === 404) {
           setState({ status: 'notfound' })
-        } else if (err instanceof ApiClientError) {
-          setState({ status: 'error', message: err.detail, requestId: err.requestId })
         } else {
-          setState({ status: 'error', message: 'Something went wrong.', requestId: null })
+          setState({ status: 'error', ...toDisplayError(err) })
         }
       })
     return () => {
@@ -74,7 +64,7 @@ export default function TaskDetailPage() {
       const updated = await completeTask(task.id)
       setState({ status: 'loaded', task: updated })
     } catch (err) {
-      setActionError(toActionError(err))
+      setActionError(toDisplayError(err))
     } finally {
       setBusy(false)
     }
@@ -88,7 +78,7 @@ export default function TaskDetailPage() {
       await deleteTask(state.task.id)
       navigate('/tasks', { state: { flash: 'Task deleted.' } })
     } catch (err) {
-      setActionError(toActionError(err))
+      setActionError(toDisplayError(err))
       setConfirmingDelete(false)
       setBusy(false)
     }

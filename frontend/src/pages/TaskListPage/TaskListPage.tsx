@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Task } from '../../types'
 import { listTasks, completeTask, deleteTask } from '../../api/tasks'
-import { ApiClientError } from '../../api/client'
+import { toDisplayError, type DisplayError } from '../../api/errors'
 import { useFlash } from '../../hooks/useFlash'
 import TaskCard from '../../components/TaskCard/TaskCard'
 import ErrorMessage from '../../components/ErrorMessage/ErrorMessage'
@@ -28,15 +28,6 @@ function completedParam(status: StatusFilter): boolean | undefined {
   return undefined
 }
 
-interface LoadError {
-  message: string
-  requestId: string | null
-}
-function toLoadError(err: unknown): LoadError {
-  if (err instanceof ApiClientError) return { message: err.detail, requestId: err.requestId }
-  return { message: 'Something went wrong. Please try again.', requestId: null }
-}
-
 const EMPTY_MESSAGE: Record<StatusFilter, string> = {
   all: 'No tasks yet. Create your first one.',
   active: 'No active tasks — everything is done!',
@@ -55,9 +46,15 @@ export default function TaskListPage() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(false)
-  const [error, setError] = useState<LoadError | null>(null)
+  const [error, setError] = useState<DisplayError | null>(null)
   const [busyId, setBusyId] = useState<number | null>(null)
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
+  // An in-page confirmation for complete/delete, which (unlike create/edit)
+  // don't navigate away. Announced via role="status".
+  const [actionStatus, setActionStatus] = useState<string | null>(null)
+  // A stable focus anchor: complete/delete remove the button (or whole row)
+  // that had focus, so we move focus here to avoid dropping it to <body>.
+  const headingRef = useRef<HTMLHeadingElement>(null)
   // Bumping this forces the loader to re-run (used by the "Try again" button,
   // where the filter itself hasn't changed).
   const [reloadKey, setReloadKey] = useState(0)
@@ -69,6 +66,7 @@ export default function TaskListPage() {
     let cancelled = false
     setLoading(true)
     setError(null)
+    setActionStatus(null)
     listTasks({ completed: completedParam(status), limit: PAGE_SIZE, offset: 0 })
       .then((data) => {
         if (cancelled) return
@@ -76,7 +74,7 @@ export default function TaskListPage() {
         setHasMore(data.length === PAGE_SIZE)
       })
       .catch((err) => {
-        if (!cancelled) setError(toLoadError(err))
+        if (!cancelled) setError(toDisplayError(err))
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -93,13 +91,16 @@ export default function TaskListPage() {
       const data = await listTasks({
         completed: completedParam(status),
         limit: PAGE_SIZE,
+        // Current count as the offset. Safe because every client-side removal
+        // (delete, or complete-while-on-Active) always follows the matching
+        // backend mutation, so client and server counts stay in lockstep.
         offset: tasks.length,
       })
       setTasks((prev) => [...prev, ...data])
       // A short page means there's nothing left — hide "Load more".
       setHasMore(data.length === PAGE_SIZE)
     } catch (err) {
-      setError(toLoadError(err))
+      setError(toDisplayError(err))
     } finally {
       setLoadingMore(false)
     }
@@ -120,8 +121,10 @@ export default function TaskListPage() {
           // A completed task no longer belongs in the "Active" view.
           .filter((item) => (status === 'active' ? !item.completed : true)),
       )
+      setActionStatus('Task marked complete.')
+      headingRef.current?.focus()
     } catch (err) {
-      setError(toLoadError(err))
+      setError(toDisplayError(err))
     } finally {
       setBusyId(null)
     }
@@ -136,8 +139,10 @@ export default function TaskListPage() {
       await deleteTask(target.id)
       setTasks((prev) => prev.filter((item) => item.id !== target.id))
       setPendingDelete(null)
+      setActionStatus('Task deleted.')
+      headingRef.current?.focus()
     } catch (err) {
-      setError(toLoadError(err))
+      setError(toDisplayError(err))
       setPendingDelete(null)
     } finally {
       setBusyId(null)
@@ -146,14 +151,16 @@ export default function TaskListPage() {
 
   return (
     <div>
-      {flash && (
+      {(actionStatus ?? flash) && (
         <p className={styles.flash} role="status">
-          {flash}
+          {actionStatus ?? flash}
         </p>
       )}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Tasks</h1>
+          <h1 className={styles.title} ref={headingRef} tabIndex={-1}>
+            Tasks
+          </h1>
           <p className={styles.subtitle}>Track and manage your work.</p>
         </div>
         <Link to="/tasks/new" className={styles.createBtn}>

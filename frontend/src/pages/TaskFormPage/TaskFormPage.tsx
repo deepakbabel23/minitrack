@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { TaskInput } from '../../types'
 import { createTask, getTask, replaceTask } from '../../api/tasks'
 import { ApiClientError } from '../../api/client'
+import { toDisplayError, type DisplayError } from '../../api/errors'
 import TaskForm, { type TaskFormValues } from '../../components/TaskForm/TaskForm'
 import ErrorMessage from '../../components/ErrorMessage/ErrorMessage'
 import styles from './TaskFormPage.module.css'
@@ -10,15 +11,6 @@ import styles from './TaskFormPage.module.css'
 interface Props {
   // 'create' powers /tasks/new; 'edit' powers /tasks/:taskId/edit.
   mode: 'create' | 'edit'
-}
-
-interface ServerError {
-  message: string
-  requestId: string | null
-}
-function toServerError(err: unknown): ServerError {
-  if (err instanceof ApiClientError) return { message: err.detail, requestId: err.requestId }
-  return { message: 'Something went wrong. Please try again.', requestId: null }
 }
 
 // Edit must load the existing task before showing the form; create doesn't.
@@ -34,7 +26,7 @@ export default function TaskFormPage({ mode }: Props) {
   const id = Number(taskId)
 
   const [submitting, setSubmitting] = useState(false)
-  const [serverError, setServerError] = useState<ServerError | null>(null)
+  const [serverError, setServerError] = useState<DisplayError | null>(null)
   const [editLoad, setEditLoad] = useState<EditLoad>({ status: 'loading' })
   const [reloadKey, setReloadKey] = useState(0)
 
@@ -64,10 +56,8 @@ export default function TaskFormPage({ mode }: Props) {
         if (cancelled) return
         if (err instanceof ApiClientError && err.status === 404) {
           setEditLoad({ status: 'notfound' })
-        } else if (err instanceof ApiClientError) {
-          setEditLoad({ status: 'error', message: err.detail, requestId: err.requestId })
         } else {
-          setEditLoad({ status: 'error', message: 'Something went wrong.', requestId: null })
+          setEditLoad({ status: 'error', ...toDisplayError(err) })
         }
       })
     return () => {
@@ -82,7 +72,7 @@ export default function TaskFormPage({ mode }: Props) {
       await createTask(values)
       navigate('/tasks', { state: { flash: 'Task created.' } })
     } catch (err) {
-      setServerError(toServerError(err))
+      setServerError(toDisplayError(err))
       setSubmitting(false)
     }
   }
@@ -96,7 +86,7 @@ export default function TaskFormPage({ mode }: Props) {
       const updated = await replaceTask(id, values)
       navigate(`/tasks/${updated.id}`, { state: { flash: 'Task updated.' } })
     } catch (err) {
-      setServerError(toServerError(err))
+      setServerError(toDisplayError(err))
       setSubmitting(false)
     }
   }
