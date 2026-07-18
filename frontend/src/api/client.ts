@@ -20,6 +20,15 @@ export function getApiKey(): string | null {
   return currentApiKey
 }
 
+// The app registers a handler so that a 401 on a request made with the STORED
+// key (the key was revoked or changed mid-session) can globally clear the
+// session and send the user back to /connect. Requests that pass an explicit
+// key override (the Connect screen's verifyKey) do NOT trigger this.
+let unauthorizedHandler: (() => void) | null = null
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  unauthorizedHandler = handler
+}
+
 // A single error type every screen can catch and inspect. `status` is 0 for a
 // network failure (backend down / CORS), otherwise the HTTP status. `detail` is
 // always a string. `requestId` is present on 404/422, null on 401.
@@ -49,6 +58,9 @@ interface RequestOptions {
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, apiKey, requireAuth = true } = options
+  // Did this request use the stored session key (rather than an explicit
+  // override)? Only stored-key 401s trigger the global session reset.
+  const usedStoredKey = requireAuth && apiKey === undefined
 
   const headers: Record<string, string> = {}
   if (body !== undefined) headers['Content-Type'] = 'application/json'
@@ -88,6 +100,9 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   if (!response.ok) {
+    // A stored-key 401 means the session is no longer valid — hand off to the
+    // registered handler (clear the key + redirect) before surfacing the error.
+    if (response.status === 401 && usedStoredKey) unauthorizedHandler?.()
     throw toApiError(response.status, data)
   }
   return data as T

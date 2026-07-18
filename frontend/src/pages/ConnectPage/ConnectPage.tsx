@@ -10,7 +10,7 @@ import styles from './ConnectPage.module.css'
 // (GET /tasks) before storing it — /health can't be used because it ignores the
 // key. On success we store the key and go to the task list.
 export default function ConnectPage() {
-  const { connect } = useApiKey()
+  const { connect, reason } = useApiKey()
   const navigate = useNavigate()
 
   const [key, setKey] = useState('')
@@ -18,6 +18,10 @@ export default function ConnectPage() {
   const [remember, setRemember] = useState(false)
   const [validating, setValidating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // A local submit error takes precedence; otherwise show why a prior session
+  // ended (e.g. a mid-session 401 redirected the user here).
+  const notice = error ?? reason
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -67,8 +71,8 @@ export default function ConnectPage() {
               onChange={(event) => setKey(event.target.value)}
               autoComplete="off"
               spellCheck={false}
-              aria-invalid={error ? true : undefined}
-              aria-describedby={error ? 'connectError' : undefined}
+              aria-invalid={notice ? true : undefined}
+              aria-describedby={notice ? 'connectError' : undefined}
             />
             <button
               type="button"
@@ -95,9 +99,9 @@ export default function ConnectPage() {
             </span>
           </label>
 
-          {error && (
+          {notice && (
             <p id="connectError" className={styles.error} role="alert">
-              {error}
+              {notice}
             </p>
           )}
 

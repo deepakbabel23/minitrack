@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { setApiKey as syncClientKey } from '../api/client'
+import { setApiKey as syncClientKey, setUnauthorizedHandler } from '../api/client'
 
 // React "Context" lets any component read the API key without it being passed
 // down through every level as a prop. Think of it as app-wide state for "who is
@@ -17,6 +17,8 @@ const STORAGE_KEY = 'minitrack_api_key'
 interface ApiKeyContextValue {
   apiKey: string | null
   isConnected: boolean
+  // Why the session ended, shown on /connect (null = arrived normally).
+  reason: string | null
   connect: (key: string, remember: boolean) => void
   disconnect: () => void
 }
@@ -28,6 +30,7 @@ export function ApiKeyProvider({ children }: { children: ReactNode }) {
   const [apiKey, setKey] = useState<string | null>(() =>
     sessionStorage.getItem(STORAGE_KEY),
   )
+  const [reason, setReason] = useState<string | null>(null)
 
   // Keep the framework-agnostic API client's copy of the key in step with
   // React state, so every request picks up the current key automatically.
@@ -35,12 +38,25 @@ export function ApiKeyProvider({ children }: { children: ReactNode }) {
     syncClientKey(apiKey)
   }, [apiKey])
 
+  // Register the global 401 handler once: if a stored-key request is rejected,
+  // clear the session and record why. ProtectedRoute then redirects to /connect.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setKey(null)
+      sessionStorage.removeItem(STORAGE_KEY)
+      setReason('Your API key was rejected. Please reconnect.')
+    })
+    return () => setUnauthorizedHandler(null)
+  }, [])
+
   const value = useMemo<ApiKeyContextValue>(
     () => ({
       apiKey,
       isConnected: apiKey !== null,
+      reason,
       connect: (key, remember) => {
         setKey(key)
+        setReason(null)
         // "Remember for this session" = sessionStorage (cleared on tab close).
         // Otherwise the key lives only in memory and is gone on refresh.
         if (remember) sessionStorage.setItem(STORAGE_KEY, key)
@@ -48,10 +64,11 @@ export function ApiKeyProvider({ children }: { children: ReactNode }) {
       },
       disconnect: () => {
         setKey(null)
+        setReason(null)
         sessionStorage.removeItem(STORAGE_KEY)
       },
     }),
-    [apiKey],
+    [apiKey, reason],
   )
 
   return <ApiKeyContext.Provider value={value}>{children}</ApiKeyContext.Provider>
