@@ -37,7 +37,7 @@ interface TaskInput { title: string; description: string | null; priority: Prior
 interface ApiError { detail: string; request_id?: string | null; }
 ```
 
-Verified by `src/types/types.test.ts`.
+Enforced by the TypeScript compiler (`npm run typecheck`).
 
 ## API client
 
@@ -84,8 +84,7 @@ accounts, so this is "Connect to MiniTrack," never "Sign in."
 **States:** idle · validating (submit disabled) · error (invalid key / server
 unreachable, with retry).
 
-Verified by `src/pages/ConnectPage/ConnectPage.test.tsx` and
-`src/auth/ApiKeyContext.test.tsx`.
+Verified by `src/pages/ConnectPage/ConnectPage.test.tsx`.
 
 ## Route protection
 
@@ -175,8 +174,8 @@ Verified by `src/pages/TaskFormPage/TaskFormPage.edit.test.tsx`.
   dialog first; on success the task leaves the list / navigates back with a
   confirmation.
 
-Verified by `src/pages/TaskListPage/TaskListPage.test.tsx` and
-`src/pages/TaskDetailPage/TaskDetailPage.test.tsx`.
+Verified by `src/pages/TaskDetailPage/TaskDetailPage.test.tsx` (action
+visibility) and the manual test cases (the confirm-and-delete flow).
 
 ## Error handling
 
