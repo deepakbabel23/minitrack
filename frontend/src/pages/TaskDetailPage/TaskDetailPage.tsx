@@ -8,6 +8,7 @@ import StatusBadge from '../../components/StatusBadge/StatusBadge'
 import Button from '../../components/Button/Button'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import ErrorMessage from '../../components/ErrorMessage/ErrorMessage'
+import { useFlash } from '../../hooks/useFlash'
 import styles from './TaskDetailPage.module.css'
 
 // A discriminated union models the four screen states cleanly — the compiler
@@ -37,6 +38,7 @@ export default function TaskDetailPage() {
   const [busy, setBusy] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [actionError, setActionError] = useState<ActionError | null>(null)
+  const flash = useFlash()
 
   useEffect(() => {
     // A non-numeric or bad :taskId can't exist — treat it as not found.
@@ -97,6 +99,12 @@ export default function TaskDetailPage() {
       <Link to="/tasks" className={styles.back}>
         ← Back to tasks
       </Link>
+
+      {flash && (
+        <p className={styles.flash} role="status">
+          {flash}
+        </p>
+      )}
 
       <div aria-live="polite">
         {state.status === 'loading' && <p className={styles.status}>Loading task…</p>}
