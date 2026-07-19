@@ -5,6 +5,7 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import Layout from "./components/Layout";
 import ConnectPage from "./pages/ConnectPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import TaskCreatePage from "./pages/TaskCreatePage";
 import TaskListPage from "./pages/TaskListPage";
 
 /** `/` sends you wherever you can actually go. */
@@ -23,8 +24,8 @@ export default function App() {
         {/* Everything below requires a key in the store. */}
         <Route element={<ProtectedRoute />}>
           <Route path="/tasks" element={<TaskListPage />} />
-          {/* Acts 3-5 fill these in. */}
-          <Route path="/tasks/new" element={<TaskListPage />} />
+          <Route path="/tasks/new" element={<TaskCreatePage />} />
+          {/* Acts 4-5 fill these in. */}
           <Route path="/tasks/:taskId" element={<TaskListPage />} />
           <Route path="/tasks/:taskId/edit" element={<TaskListPage />} />
         </Route>
