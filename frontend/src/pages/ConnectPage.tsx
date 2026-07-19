@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { isApiClientError, statusFallbackMessage } from "../api/errors";
@@ -8,7 +8,7 @@ import { useApiKey } from "../auth/ApiKeyContext";
 type Status = "idle" | "validating" | "error";
 
 export default function ConnectPage() {
-  const { isConnected, connect, disconnectReason, clearDisconnectReason } = useApiKey();
+  const { isConnected, connect, disconnectReason } = useApiKey();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,9 +25,15 @@ export default function ConnectPage() {
   // Where ProtectedRoute bounced the user from, if anywhere.
   const from = (location.state as { from?: string } | null)?.from ?? "/tasks";
 
-  // The reason is a one-shot message; drop it once this screen unmounts so it
-  // can't reappear on a later visit.
-  useEffect(() => clearDisconnectReason, [clearDisconnectReason]);
+  /*
+   * The reason is deliberately NOT cleared on unmount. StrictMode mounts,
+   * unmounts and remounts in development, so an unmount cleanup would fire
+   * immediately and wipe the banner before it was ever read — during
+   * `npm run dev`, which is how this is demoed.
+   *
+   * It clears itself where it should: store.connect() nulls it on a successful
+   * reconnect, and a manual disconnect passes no reason.
+   */
 
   if (isConnected) {
     return <Navigate to={from} replace />;
