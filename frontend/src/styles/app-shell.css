@@ -192,6 +192,8 @@ a {
 /* ======================================================================== */
 .segmented {
   display: inline-flex;
+  /* Hug its content: as a flex child of .stack it would otherwise stretch. */
+  align-self: flex-start;
   gap: var(--space-1);
   padding: var(--space-1);
   background: var(--color-bg-slate-50);
@@ -329,6 +331,16 @@ dialog.dialog-overlay::backdrop {
    the trade for not wrapping buttons in a component. */
 a.btn {
   text-decoration: none;
+}
+
+/* Same story for the card title: components.css styles it as a <span>, but it
+   is a <Link> here so the row is navigable. Underline on hover only. */
+a.task-card__title {
+  text-decoration: none;
+}
+
+a.task-card__title:hover {
+  text-decoration: underline;
 }
 
 /* Destructive text action. preview.html does this with an inline style. */
