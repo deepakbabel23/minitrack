@@ -1,0 +1,13 @@
+/*
+ * MiniTrack — Styles entry point
+ * ---------------------------------------------------------------------------
+ * Import this one file to pull in the whole design layer. Order matters:
+ * tokens.css defines the custom properties that everything else consumes, so
+ * it must come first; components.css consumes both tokens and type scale.
+ *
+ * Derived from DESIGN.md (Stitch design system: "MiniTrack Precision").
+ */
+
+@import "./tokens.css"; /* design tokens — the single source of truth */
+@import "./typography.css"; /* type utility classes (consume --text-* tokens) */
+@import "./components.css"; /* Button / FormField / Badge / TaskCard / Dialog */
