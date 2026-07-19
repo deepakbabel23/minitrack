@@ -5,9 +5,10 @@ import { isApiClientError, statusFallbackMessage } from "../api/errors";
 import { completeTask, deleteTask, getTask } from "../api/tasks";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ErrorMessage from "../components/ErrorMessage";
-import Flash, { type FlashMessage } from "../components/Flash";
+import Flash from "../components/Flash";
 import PriorityBadge from "../components/PriorityBadge";
 import StatusBadge from "../components/StatusBadge";
+import { useFlash, useRouterFlash } from "../hooks/useFlash";
 import type { Task } from "../types";
 
 /**
@@ -26,7 +27,9 @@ export default function TaskDetailPage() {
   const navigate = useNavigate();
 
   const [state, setState] = useState<ViewState>({ kind: "loading" });
-  const [flash, setFlash] = useState<FlashMessage | null>(null);
+  const { flash, showFlash } = useFlash();
+  // Picks up "Task created." / "Task updated." handed over on navigation.
+  useRouterFlash(showFlash);
   const [busy, setBusy] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -74,13 +77,9 @@ export default function TaskDetailPage() {
     try {
       const updated = await completeTask(state.task.id);
       setState({ kind: "loaded", task: updated });
-      setFlash({ id: Date.now(), message: "Task marked complete.", tone: "success" });
+      showFlash("Task marked complete.");
     } catch (cause) {
-      setFlash({
-        id: Date.now(),
-        message: isApiClientError(cause) ? cause.detail : statusFallbackMessage(0),
-        tone: "error",
-      });
+      showFlash(isApiClientError(cause) ? cause.detail : statusFallbackMessage(0), "error");
     } finally {
       setBusy(false);
     }
@@ -94,11 +93,7 @@ export default function TaskDetailPage() {
       navigate("/tasks", { replace: true, state: { flash: "Task deleted." } });
     } catch (cause) {
       setConfirmingDelete(false);
-      setFlash({
-        id: Date.now(),
-        message: isApiClientError(cause) ? cause.detail : statusFallbackMessage(0),
-        tone: "error",
-      });
+      showFlash(isApiClientError(cause) ? cause.detail : statusFallbackMessage(0), "error");
     } finally {
       setBusy(false);
     }

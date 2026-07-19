@@ -7,6 +7,7 @@ import ConnectPage from "./pages/ConnectPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import TaskCreatePage from "./pages/TaskCreatePage";
 import TaskDetailPage from "./pages/TaskDetailPage";
+import TaskEditPage from "./pages/TaskEditPage";
 import TaskListPage from "./pages/TaskListPage";
 
 /** `/` sends you wherever you can actually go. */
@@ -27,8 +28,7 @@ export default function App() {
           <Route path="/tasks" element={<TaskListPage />} />
           <Route path="/tasks/new" element={<TaskCreatePage />} />
           <Route path="/tasks/:taskId" element={<TaskDetailPage />} />
-          {/* Act 5 fills this in. */}
-          <Route path="/tasks/:taskId/edit" element={<TaskListPage />} />
+          <Route path="/tasks/:taskId/edit" element={<TaskEditPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

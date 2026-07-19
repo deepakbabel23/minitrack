@@ -6,9 +6,10 @@ import { completeTask, deleteTask } from "../api/tasks";
 import ConfirmDialog from "../components/ConfirmDialog";
 import EmptyState from "../components/EmptyState";
 import ErrorMessage from "../components/ErrorMessage";
-import Flash, { type FlashMessage } from "../components/Flash";
+import Flash from "../components/Flash";
 import StatusFilterControl from "../components/StatusFilterControl";
 import TaskCard from "../components/TaskCard";
+import { useFlash, useRouterFlash } from "../hooks/useFlash";
 import { useStatusFilter } from "../hooks/useStatusFilter";
 import { useTaskList } from "../hooks/useTaskList";
 import type { Task } from "../types";
@@ -22,15 +23,13 @@ export default function TaskListPage() {
   const { tasks, status, error, hasMore, loadMore, reload, applyTaskUpdate, removeTask } =
     useTaskList(completed);
 
-  const [flash, setFlash] = useState<FlashMessage | null>(null);
+  const { flash, showFlash } = useFlash();
+  // Picks up "Task deleted." / "Task updated." handed over on navigation.
+  useRouterFlash(showFlash);
+
   const [busyTaskId, setBusyTaskId] = useState<number | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  // Act 5 replaces this with the shared useFlash hook.
-  function showFlash(message: string, tone: FlashMessage["tone"] = "success") {
-    setFlash({ id: Date.now(), message, tone });
-  }
 
   async function handleComplete(task: Task) {
     setBusyTaskId(task.id);
