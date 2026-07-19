@@ -1,0 +1,9 @@
+<Imperative summary of the change, <=72 chars, no trailing period>
+
+<Why this change was made: the bug, constraint, or motivation. Not a
+restatement of the diff. Wrap around 72-80 columns.>
+
+- <Optional bullet for a distinct sub-change>
+- <Optional bullet for another sub-change>
+
+Co-Authored-By: Claude <model name> <noreply@anthropic.com>
