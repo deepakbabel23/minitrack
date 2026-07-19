@@ -14,13 +14,15 @@ interface State {
   hasMore: boolean;
   status: ListStatus;
   error: string | null;
+  /** Whether the failure was an append, so Retry can resume instead of reset. */
+  errorWasAppend: boolean;
 }
 
 type Action =
   | { type: "reset" }
   | { type: "load-start"; append: boolean }
   | { type: "load-success"; tasks: Task[]; append: boolean }
-  | { type: "load-error"; message: string }
+  | { type: "load-error"; message: string; append: boolean }
   | { type: "task-updated"; task: Task }
   | { type: "task-removed"; taskId: number };
 
@@ -30,6 +32,7 @@ const INITIAL: State = {
   hasMore: false,
   status: "loading",
   error: null,
+  errorWasAppend: false,
 };
 
 /**
@@ -63,11 +66,19 @@ function reducer(state: State, action: Action): State {
         hasMore: action.tasks.length === PAGE_SIZE,
         status: "loaded",
         error: null,
+        errorWasAppend: false,
       };
     }
 
     case "load-error":
-      return { ...state, status: "error", error: action.message };
+      // Tasks are left intact: a failed append must not discard the pages
+      // already on screen, so Retry can resume rather than start over.
+      return {
+        ...state,
+        status: "error",
+        error: action.message,
+        errorWasAppend: action.append,
+      };
 
     case "task-updated":
       return {
@@ -90,6 +101,8 @@ export interface UseTaskListResult {
   hasMore: boolean;
   loadMore: () => void;
   reload: () => void;
+  /** Resumes an interrupted append, or reloads from the start. */
+  retry: () => void;
   applyTaskUpdate: (task: Task) => void;
   removeTask: (taskId: number) => void;
 }
@@ -127,7 +140,7 @@ export function useTaskList(completed: boolean | undefined): UseTaskListResult {
         if (cause instanceof DOMException && cause.name === "AbortError") return;
         if (seq !== requestSeq.current) return;
         const message = isApiClientError(cause) ? cause.detail : statusFallbackMessage(0);
-        dispatch({ type: "load-error", message });
+        dispatch({ type: "load-error", message, append });
       }
     },
     [completed],
@@ -150,6 +163,15 @@ export function useTaskList(completed: boolean | undefined): UseTaskListResult {
     void fetchPage(0, false);
   }, [fetchPage]);
 
+  const retry = useCallback(() => {
+    if (state.errorWasAppend) {
+      void fetchPage(nextOffsetRef.current, true);
+    } else {
+      dispatch({ type: "reset" });
+      void fetchPage(0, false);
+    }
+  }, [fetchPage, state.errorWasAppend]);
+
   const applyTaskUpdate = useCallback((task: Task) => {
     dispatch({ type: "task-updated", task });
   }, []);
@@ -165,6 +187,7 @@ export function useTaskList(completed: boolean | undefined): UseTaskListResult {
     hasMore: state.hasMore,
     loadMore,
     reload,
+    retry,
     applyTaskUpdate,
     removeTask,
   };

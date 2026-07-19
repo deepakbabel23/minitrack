@@ -27,7 +27,12 @@ export default function AppHeader() {
               </button>
             </>
           ) : (
-            <span className="badge badge--status-active">Not connected</span>
+            <span className="badge badge--status-active">
+              <span className="badge__icon" aria-hidden="true">
+                ○
+              </span>
+              Not connected
+            </span>
           )}
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { isApiClientError, statusFallbackMessage } from "../api/errors";
@@ -20,16 +20,35 @@ function errorText(cause: unknown): string {
 
 export default function TaskListPage() {
   const { filter, completed, setFilter } = useStatusFilter();
-  const { tasks, status, error, hasMore, loadMore, reload, applyTaskUpdate, removeTask } =
+  const { tasks, status, error, hasMore, loadMore, retry, applyTaskUpdate, removeTask } =
     useTaskList(completed);
 
   const { flash, showFlash } = useFlash();
-  // Picks up "Task deleted." / "Task updated." handed over on navigation.
-  useRouterFlash(showFlash);
+  // Picks up "Task deleted." / "Task updated." handed over on navigation. When
+  // one arrives, the previous screen navigated away under the user (e.g. delete
+  // from the detail page), so focus needs a home here too.
+  useRouterFlash(showFlash, () => setRestoreFocus(true));
 
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const [busyTaskId, setBusyTaskId] = useState<number | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [restoreFocus, setRestoreFocus] = useState(false);
+
+  /*
+   * Focus has to move AFTER the dialog closes, not during the delete handler.
+   * <dialog>.close() restores focus to whatever opened it — here, the Delete
+   * button of a row that has just unmounted — so focusing earlier is silently
+   * undone and focus ends up on <body>. ConfirmDialog is a child, and React
+   * runs child effects first, so its close() has already happened by the time
+   * this effect runs.
+   */
+  useEffect(() => {
+    if (restoreFocus && pendingDelete === null) {
+      headingRef.current?.focus();
+      setRestoreFocus(false);
+    }
+  }, [restoreFocus, pendingDelete]);
 
   async function handleComplete(task: Task) {
     setBusyTaskId(task.id);
@@ -53,11 +72,22 @@ export default function TaskListPage() {
       await deleteTask(pendingDelete.id);
       removeTask(pendingDelete.id);
       showFlash(`“${pendingDelete.title}” deleted.`);
-      setPendingDelete(null);
+      setRestoreFocus(true);
     } catch (cause) {
-      showFlash(errorText(cause), "error");
-      setPendingDelete(null);
+      // A 404 means it's already gone — that's the outcome the user asked for,
+      // not a failure. Anything else is a real error and the row stays put.
+      if (isApiClientError(cause) && cause.isNotFound) {
+        removeTask(pendingDelete.id);
+        showFlash(`“${pendingDelete.title}” was already deleted.`);
+        setRestoreFocus(true);
+      } else {
+        // The row still exists and its Delete button is still the natural
+        // focus target — don't yank the user to the top of a long list for an
+        // operation that changed nothing.
+        showFlash(errorText(cause), "error");
+      }
     } finally {
+      setPendingDelete(null);
       setDeleting(false);
     }
   }
@@ -68,7 +98,8 @@ export default function TaskListPage() {
   return (
     <div className="stack stack--loose">
       <div className="row row--between">
-        <h1 className="text-headline-3xl" style={{ margin: 0 }} tabIndex={-1}>
+        {/* tabIndex -1 so it can receive programmatic focus after a delete. */}
+        <h1 className="text-headline-3xl" style={{ margin: 0 }} tabIndex={-1} ref={headingRef}>
           Tasks
         </h1>
         <Link to="/tasks/new" className="btn btn--primary">
@@ -76,13 +107,17 @@ export default function TaskListPage() {
         </Link>
       </div>
 
-      <StatusFilterControl value={filter} onChange={setFilter} disabled={isLoading} />
+      {/*
+        Deliberately NOT disabled while loading: disabling the button the user
+        just pressed drops focus to <body> and ejects a keyboard user from the
+        control. useTaskList already guards against out-of-order responses, so
+        the disable bought nothing.
+      */}
+      <StatusFilterControl value={filter} onChange={setFilter} />
 
       <Flash flash={flash} />
 
-      {status === "error" && error && (
-        <ErrorMessage message={error} onRetry={reload} />
-      )}
+      {status === "error" && error && <ErrorMessage message={error} onRetry={retry} />}
 
       {isLoading && (
         <p className="state-block" role="status">

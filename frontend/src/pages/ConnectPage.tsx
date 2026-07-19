@@ -80,14 +80,19 @@ export default function ConnectPage() {
         </p>
       </div>
 
-      {disconnectReason && (
-        <div className="flash flash--error" role="status">
-          <span className="flash__icon" aria-hidden="true">
-            ⚠
-          </span>
-          {disconnectReason}
-        </div>
-      )}
+      {/* Region mounted unconditionally so the announcement actually fires —
+          a role="status" that appears together with its text is routinely
+          skipped by screen readers. Same reason .flash-region always renders. */}
+      <div className="flash-region" role="status" aria-live="polite">
+        {disconnectReason && (
+          <div className="flash flash--error">
+            <span className="flash__icon" aria-hidden="true">
+              ⚠
+            </span>
+            {disconnectReason}
+          </div>
+        )}
+      </div>
 
       <form className="panel" onSubmit={handleSubmit} noValidate>
         <div className="stack stack--loose">

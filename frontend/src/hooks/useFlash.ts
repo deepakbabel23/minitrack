@@ -55,7 +55,12 @@ export function useFlash(timeoutMs: number = DEFAULT_TIMEOUT_MS): UseFlashResult
  * Consumes a message handed over through router navigation state exactly once,
  * then strips it from history so a refresh or a Back doesn't replay it.
  */
-export function useRouterFlash(showFlash: (message: string, tone?: FlashTone) => void): void {
+export function useRouterFlash(
+  showFlash: (message: string, tone?: FlashTone) => void,
+  /** Called when a message was actually consumed — used to move focus, since
+   *  arriving here means the previous screen navigated away under the user. */
+  onConsumed?: () => void,
+): void {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -64,9 +69,10 @@ export function useRouterFlash(showFlash: (message: string, tone?: FlashTone) =>
     if (typeof incoming !== "string" || !incoming) return;
 
     showFlash(incoming);
+    onConsumed?.();
     navigate(location.pathname + location.search, { replace: true, state: null });
     // Intentionally keyed on the state object only: re-running on every
     // showFlash identity change would re-announce.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 }

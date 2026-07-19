@@ -343,8 +343,12 @@ a.task-card__title:hover {
   text-decoration: underline;
 }
 
-/* Destructive text action. preview.html does this with an inline style. */
-.btn--ghost-danger {
+/* Destructive text action. preview.html does this with an inline style.
+   Two classes, not one: components.css sets .btn--ghost { color: text-muted },
+   and it loads AFTER this file, so a single-class selector here would tie on
+   specificity and lose on source order — leaving Delete indistinguishable from
+   View. */
+.btn.btn--ghost-danger {
   color: var(--color-danger-red);
 }
 
@@ -356,6 +360,20 @@ a.task-card__title:hover {
 .btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* components.css gives the checkbox `cursor: pointer`, but completion is
+   one-way so we render it as a presentational marker, not a control. A pointer
+   cursor would advertise a toggle that doesn't exist. */
+.task-card__checkbox {
+  cursor: default;
+}
+
+/* app-shell's a.task-card__title:hover (0,2,1) would otherwise outrank
+   components.css's .task-card--completed .task-card__title (0,2,0) and swap a
+   completed task's line-through for an underline on hover. */
+.task-card--completed a.task-card__title:hover {
+  text-decoration: line-through;
 }
 
 /* 2-line description preview on a task card. */

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { isApiClientError, statusFallbackMessage } from "../api/errors";
@@ -92,6 +92,12 @@ export default function TaskDetailPage() {
       await deleteTask(state.task.id);
       navigate("/tasks", { replace: true, state: { flash: "Task deleted." } });
     } catch (cause) {
+      // Already gone is the outcome the user wanted — don't strand them on a
+      // page describing a task that no longer exists.
+      if (isApiClientError(cause) && cause.isNotFound) {
+        navigate("/tasks", { replace: true, state: { flash: "Task was already deleted." } });
+        return;
+      }
       setConfirmingDelete(false);
       showFlash(isApiClientError(cause) ? cause.detail : statusFallbackMessage(0), "error");
     } finally {
@@ -107,56 +113,46 @@ export default function TaskDetailPage() {
     </div>
   );
 
+  /*
+   * Every branch renders inside ONE tree so <Flash> is mounted before any
+   * message arrives. Early-returning per state would remount the live region
+   * together with its text — which screen readers routinely skip — and that
+   * matters here because useRouterFlash fires "Task created." while this page
+   * is still in `loading`.
+   */
+  let body: ReactNode;
+
   if (state.kind === "loading") {
-    return (
-      <div className="stack stack--loose">
-        {backLink}
-        <p className="state-block" role="status">
-          Loading task…
+    body = (
+      <p className="state-block" role="status">
+        Loading task…
+      </p>
+    );
+  } else if (state.kind === "notfound") {
+    body = (
+      <div className="empty-state">
+        <h1 className="empty-state__title text-headline-2xl">Task not found</h1>
+        <p className="empty-state__body text-body-base">
+          Task #{taskId} doesn&rsquo;t exist. It may have been deleted.
         </p>
+        <Link to="/tasks" className="btn btn--primary">
+          Back to tasks
+        </Link>
       </div>
     );
-  }
-
-  if (state.kind === "notfound") {
-    return (
-      <div className="stack stack--loose">
-        {backLink}
-        <div className="empty-state">
-          <h1 className="empty-state__title text-headline-2xl">Task not found</h1>
-          <p className="empty-state__body text-body-base">
-            Task #{taskId} doesn&rsquo;t exist. It may have been deleted.
-          </p>
-          <Link to="/tasks" className="btn btn--primary">
-            Back to tasks
-          </Link>
-        </div>
-      </div>
+  } else if (state.kind === "error") {
+    body = (
+      <ErrorMessage
+        message={state.message}
+        requestId={state.requestId}
+        onRetry={() => void load()}
+      />
     );
-  }
-
-  if (state.kind === "error") {
-    return (
-      <div className="stack stack--loose">
-        {backLink}
-        <ErrorMessage
-          message={state.message}
-          requestId={state.requestId}
-          onRetry={() => void load()}
-        />
-      </div>
-    );
-  }
-
-  const { task } = state;
-
-  return (
-    <div className="stack stack--loose">
-      {backLink}
-
-      <Flash flash={flash} />
-
-      <article className="panel stack">
+  } else {
+    const { task } = state;
+    body = (
+      <>
+        <article className="panel stack">
         <div className="row row--tight" style={{ gap: "var(--space-3)" }}>
           <PriorityBadge priority={task.priority} />
           <StatusBadge completed={task.completed} />
@@ -205,18 +201,27 @@ export default function TaskDetailPage() {
             Delete
           </button>
         </div>
-      </article>
+        </article>
 
-      <ConfirmDialog
-        open={confirmingDelete}
-        title="Delete this task?"
-        body={`“${task.title}” will be permanently removed. This cannot be undone.`}
-        confirmLabel="Delete"
-        confirmTone="danger"
-        busy={busy}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setConfirmingDelete(false)}
-      />
+        <ConfirmDialog
+          open={confirmingDelete}
+          title="Delete this task?"
+          body={`“${task.title}” will be permanently removed. This cannot be undone.`}
+          confirmLabel="Delete"
+          confirmTone="danger"
+          busy={busy}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmingDelete(false)}
+        />
+      </>
+    );
+  }
+
+  return (
+    <div className="stack stack--loose">
+      {backLink}
+      <Flash flash={flash} />
+      {body}
     </div>
   );
 }

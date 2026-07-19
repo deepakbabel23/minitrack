@@ -10,5 +10,12 @@ export default function StatusBadge({ completed }: { completed: boolean }) {
       </span>
     );
   }
-  return <span className="badge badge--status-active">Active</span>;
+  return (
+    <span className="badge badge--status-active">
+      <span className="badge__icon" aria-hidden="true">
+        ○
+      </span>
+      Active
+    </span>
+  );
 }
