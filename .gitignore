@@ -12,6 +12,9 @@ Desktop.ini
 $RECYCLE.BIN/
 *.lnk
 
+# MS Office lock files, left behind while a doc is open (e.g. ~$deck.pptx)
+~$*
+
 # Linux
 *~
 .directory
@@ -46,3 +49,8 @@ env/
 
 # Claude Code — personal/machine-local settings (shared settings.json IS tracked)
 .claude/settings.local.json
+
+# Superseded diagram set — replaced by minitrack_frontend_diagrams_updated/,
+# which ships the same eight diagrams as editable SVG alongside the PNGs.
+# Kept on disk, out of history.
+facilitator/minitrack_frontend_diagrams/

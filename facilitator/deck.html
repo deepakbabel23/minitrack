@@ -1,0 +1,905 @@
+<style>
+  /* ============================================================= *
+   * MiniTrack — Live Build Deck
+   * Themed in the app's own "MiniTrack Precision" design system:
+   * Indigo primary on slate neutrals, with a committed dark
+   * "terminal" surface for every prompt block.
+   * ============================================================= */
+
+  :root {
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+    /* neutrals — slate, a cool bias toward the indigo accent */
+    --bg: #eef1f6;
+    --ground: #f8fafc;
+    --surface: #ffffff;
+    --surface-2: #f4f6fb;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --text: #0f172a;
+    --muted: #475569;
+    --subtle: #94a3b8;
+
+    /* accent — indigo */
+    --accent: #4f46e5;
+    --accent-strong: #4338ca;
+    --accent-soft: #eef2ff;
+    --accent-ink: #312e81;
+    --on-accent: #ffffff;
+
+    /* semantic (straight from the design system's badges) */
+    --good: #16a34a;
+    --good-soft: #dcfce7;
+    --good-text: #166534;
+    --danger: #dc2626;
+    --danger-soft: #fee2e2;
+    --danger-text: #991b1b;
+    --warn-soft: #fef3c7;
+    --warn-text: #92400e;
+    --info-soft: #dbeafe;
+    --info-text: #1e40af;
+
+    /* terminal — a single dark world, in both themes */
+    --code-bg: #0b1120;
+    --code-surface: #111a2e;
+    --code-text: #e2e8f0;
+    --code-dim: #94a3b8;
+    --code-border: #24304a;
+    --code-accent: #a5b4fc;
+
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06);
+    --shadow-md: 0 10px 30px rgba(15, 23, 42, .10);
+    --shadow-lg: 0 24px 60px rgba(15, 23, 42, .18);
+
+    --radius: 14px;
+    --maxw: 1040px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #070b16;
+      --ground: #0b1120;
+      --surface: #0f172a;
+      --surface-2: #131f38;
+      --border: #24304a;
+      --border-strong: #33415f;
+      --text: #eef1fb;
+      --muted: #a3aec4;
+      --subtle: #6b7793;
+      --accent: #818cf8;
+      --accent-strong: #a5b4fc;
+      --accent-soft: #1c2540;
+      --accent-ink: #c7cdff;
+      --on-accent: #0b1120;
+      --good: #4ade80; --good-soft: #10331f; --good-text: #86efac;
+      --danger: #f87171; --danger-soft: #3a1620; --danger-text: #fca5a5;
+      --warn-soft: #3a2c10; --warn-text: #fcd34d;
+      --info-soft: #16233f; --info-text: #93c5fd;
+      --code-bg: #060a14;
+      --code-surface: #0d1526;
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, .45);
+      --shadow-lg: 0 24px 60px rgba(0, 0, 0, .6);
+    }
+  }
+  /* viewer toggle wins in both directions */
+  :root[data-theme="light"] {
+    --bg: #eef1f6; --ground: #f8fafc; --surface: #ffffff; --surface-2: #f4f6fb;
+    --border: #e2e8f0; --border-strong: #cbd5e1; --text: #0f172a; --muted: #475569; --subtle: #94a3b8;
+    --accent: #4f46e5; --accent-strong: #4338ca; --accent-soft: #eef2ff; --accent-ink: #312e81; --on-accent: #ffffff;
+    --good: #16a34a; --good-soft: #dcfce7; --good-text: #166534;
+    --danger: #dc2626; --danger-soft: #fee2e2; --danger-text: #991b1b;
+    --warn-soft: #fef3c7; --warn-text: #92400e; --info-soft: #dbeafe; --info-text: #1e40af;
+    --code-bg: #0b1120; --code-surface: #111a2e;
+    --shadow-md: 0 10px 30px rgba(15,23,42,.10); --shadow-lg: 0 24px 60px rgba(15,23,42,.18);
+  }
+  :root[data-theme="dark"] {
+    --bg: #070b16; --ground: #0b1120; --surface: #0f172a; --surface-2: #131f38;
+    --border: #24304a; --border-strong: #33415f; --text: #eef1fb; --muted: #a3aec4; --subtle: #6b7793;
+    --accent: #818cf8; --accent-strong: #a5b4fc; --accent-soft: #1c2540; --accent-ink: #c7cdff; --on-accent: #0b1120;
+    --good: #4ade80; --good-soft: #10331f; --good-text: #86efac;
+    --danger: #f87171; --danger-soft: #3a1620; --danger-text: #fca5a5;
+    --warn-soft: #3a2c10; --warn-text: #fcd34d; --info-soft: #16233f; --info-text: #93c5fd;
+    --code-bg: #060a14; --code-surface: #0d1526;
+    --shadow-md: 0 10px 30px rgba(0,0,0,.45); --shadow-lg: 0 24px 60px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  .deck-root {
+    font-family: var(--sans);
+    color: var(--text);
+    background:
+      radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 55%),
+      radial-gradient(90% 80% at 0% 100%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 50%),
+      var(--bg);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* progress bar */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+    z-index: 40; transition: width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* top chrome */
+  .brand {
+    position: fixed; top: 18px; left: 24px; z-index: 30;
+    display: flex; align-items: center; gap: 9px;
+    font-weight: 700; letter-spacing: -.01em; font-size: .95rem;
+  }
+  .brand .mark {
+    width: 22px; height: 22px; border-radius: 7px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    box-shadow: var(--shadow-sm); flex: none;
+    display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 800;
+  }
+  .brand small { color: var(--subtle); font-weight: 600; }
+
+  .topright {
+    position: fixed; top: 16px; right: 22px; z-index: 30;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .counter {
+    font-family: var(--mono); font-size: .78rem; color: var(--muted);
+    font-variant-numeric: tabular-nums; letter-spacing: .04em;
+  }
+  .counter b { color: var(--text); }
+  .tbtn {
+    appearance: none; border: 1px solid var(--border-strong); background: var(--surface);
+    color: var(--muted); width: 32px; height: 32px; border-radius: 9px; cursor: pointer;
+    font-size: 14px; display: grid; place-items: center; box-shadow: var(--shadow-sm);
+    transition: transform .12s ease, color .12s ease, border-color .12s ease;
+  }
+  .tbtn:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
+
+  /* slide stage */
+  .stage { position: absolute; inset: 0; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 84px 6vw 92px;
+    opacity: 0; visibility: hidden;
+    transform: translateY(14px);
+    transition: opacity .4s ease, transform .45s cubic-bezier(.4,0,.2,1), visibility .4s;
+    overflow-y: auto;
+  }
+  .slide.is-active { opacity: 1; visibility: visible; transform: none; }
+  .slide-inner { width: 100%; max-width: var(--maxw); margin: 0 auto; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: .72rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .14em; color: var(--accent);
+    background: var(--accent-soft); padding: 5px 11px; border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: clamp(2.2rem, 5.4vw, 3.8rem); line-height: 1.05; letter-spacing: -.03em; text-wrap: balance; font-weight: 800; }
+  h2 { font-size: clamp(1.6rem, 3.6vw, 2.5rem); line-height: 1.12; letter-spacing: -.02em; text-wrap: balance; font-weight: 750; margin-bottom: 8px; }
+  .lede { font-size: clamp(1.05rem, 1.7vw, 1.3rem); color: var(--muted); line-height: 1.55; max-width: 62ch; }
+  .slide p { line-height: 1.55; }
+
+  /* cover */
+  .cover h1 { margin-bottom: 22px; }
+  .cover .lede { margin-bottom: 30px; }
+  .cover-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: .82rem; font-weight: 600; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 7px 13px; border-radius: 999px; box-shadow: var(--shadow-sm);
+  }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .kbd-hint { margin-top: 34px; font-size: .8rem; color: var(--subtle); font-family: var(--mono); }
+  .kbd-hint kbd {
+    font-family: var(--mono); background: var(--surface); border: 1px solid var(--border-strong);
+    border-bottom-width: 2px; border-radius: 6px; padding: 1px 7px; color: var(--text); font-size: .78rem;
+  }
+
+  /* grids & cards */
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px 22px; box-shadow: var(--shadow-sm);
+  }
+  .card h3 { font-size: 1.05rem; letter-spacing: -.01em; margin-bottom: 6px; display: flex; align-items: center; gap: 9px; }
+  .card p { font-size: .92rem; color: var(--muted); }
+  .card .num {
+    font-family: var(--mono); font-size: .72rem; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); border-radius: 7px; padding: 2px 7px; flex: none;
+  }
+  ul.clean { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  ul.clean li { position: relative; padding-left: 22px; color: var(--muted); font-size: .95rem; line-height: 1.5; }
+  ul.clean li::before {
+    content: ""; position: absolute; left: 3px; top: .5em; width: 7px; height: 7px;
+    border-radius: 2px; background: var(--accent);
+  }
+  ul.clean li b { color: var(--text); font-weight: 650; }
+  code, .mono { font-family: var(--mono); }
+  p code, li code, td code, .card code {
+    font-family: var(--mono); font-size: .85em; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; color: var(--accent-ink);
+  }
+
+  /* terminal / prompt block — the recurring artifact motif */
+  .term {
+    background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 12px;
+    overflow: hidden; box-shadow: var(--shadow-md); color: var(--code-text);
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+    background: var(--code-surface); border-bottom: 1px solid var(--code-border);
+  }
+  .term-bar .tl { display: flex; gap: 6px; }
+  .term-bar .tl i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .term-bar .tl i:nth-child(1) { background: #ff5f57; }
+  .term-bar .tl i:nth-child(2) { background: #febc2e; }
+  .term-bar .tl i:nth-child(3) { background: #28c840; }
+  .term-bar .name { font-family: var(--mono); font-size: .74rem; color: var(--code-dim); margin-left: 4px; }
+  .term pre {
+    margin: 0; padding: 16px 18px; font-family: var(--mono); font-size: .82rem; line-height: 1.6;
+    white-space: pre-wrap; overflow-x: auto; color: var(--code-text);
+  }
+  .term pre .c { color: var(--code-dim); }              /* comment / dim */
+  .term pre .k { color: var(--code-accent); font-weight: 600; } /* keyword-ish highlight */
+  .term pre .g { color: #86efac; }                       /* good */
+  .term pre .r { color: #fca5a5; }                       /* danger */
+
+  /* callouts */
+  .callout {
+    display: flex; gap: 13px; align-items: flex-start;
+    border-radius: 12px; padding: 15px 17px; font-size: .95rem; line-height: 1.5;
+  }
+  .callout .ic { flex: none; font-size: 1.05rem; line-height: 1.4; }
+  .callout.gotcha { background: var(--danger-soft); border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent); color: var(--danger-text); }
+  .callout.gotcha b { color: var(--danger-text); }
+  .callout.note { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); color: var(--accent-ink); }
+  .callout.good { background: var(--good-soft); border: 1px solid color-mix(in srgb, var(--good) 35%, transparent); color: var(--good-text); }
+  .callout .label { text-transform: uppercase; letter-spacing: .1em; font-size: .68rem; font-weight: 700; display: block; margin-bottom: 2px; opacity: .85; }
+
+  /* PIRV row */
+  .pirv { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 8px; }
+  .pirv .step { position: relative; }
+  .pirv .step .letter {
+    font-family: var(--mono); font-weight: 800; font-size: 1.5rem; color: var(--accent);
+    line-height: 1;
+  }
+  .pirv .step h3 { font-size: 1.05rem; margin: 8px 0 4px; }
+  .pirv .step p { font-size: .88rem; color: var(--muted); }
+  .pirv .step::after {
+    content: "→"; position: absolute; right: -11px; top: 4px; color: var(--subtle); font-weight: 700;
+  }
+  .pirv .step:last-child::after { content: ""; }
+
+  /* design tour */
+  .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .sw { border-radius: 10px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .sw .chipc { height: 46px; }
+  .sw .meta { padding: 6px 8px; background: var(--surface); }
+  .sw .meta .nm { font-size: .72rem; font-weight: 650; }
+  .sw .meta .hx { font-family: var(--mono); font-size: .66rem; color: var(--subtle); }
+
+  /* live component demo — uses the actual design-system look */
+  .demo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .ds-btn {
+    font-family: var(--sans); font-size: .82rem; font-weight: 600; line-height: 1.25;
+    padding: 9px 18px; border: none; border-radius: 8px; cursor: default; box-shadow: var(--shadow-sm);
+  }
+  .ds-btn.primary { background: #4f46e5; color: #fff; }
+  .ds-btn.secondary { background: #fff; color: #0f172a; border: 1px solid #e2e8f0; }
+  .ds-btn.danger { background: #dc2626; color: #fff; }
+  .ds-btn.ghost { background: transparent; color: #475569; box-shadow: none; }
+  .ds-badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px;
+    font-size: .72rem; font-weight: 700; font-family: var(--sans);
+  }
+  .b-high { background: #fee2e2; color: #991b1b; }
+  .b-med { background: #fef3c7; color: #92400e; }
+  .b-low { background: #dbeafe; color: #1e40af; }
+  .b-active { background: #f1f5f9; color: #475569; }
+  .b-done { background: #dcfce7; color: #166534; }
+  .taskcard {
+    display: flex; gap: 14px; align-items: flex-start; background: #fff; color: #0f172a;
+    border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 1px 2px rgba(15,23,42,.06);
+    padding: 15px 16px; max-width: 420px;
+  }
+  .taskcard .cb { width: 20px; height: 20px; border: 2px solid #c7c4d8; border-radius: 4px; flex: none; margin-top: 2px; }
+  .taskcard .t { font-size: .95rem; font-weight: 650; margin-bottom: 3px; }
+  .taskcard .d { font-size: .82rem; color: #475569; line-height: 1.45; }
+  .taskcard .row { display: flex; gap: 6px; margin-top: 8px; }
+  .typescale > div { display: flex; align-items: baseline; gap: 12px; padding: 5px 0; border-bottom: 1px dashed var(--border); }
+  .typescale .lab { font-family: var(--mono); font-size: .68rem; color: var(--subtle); width: 120px; flex: none; }
+
+  /* contract table */
+  .tbl-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+  table { border-collapse: collapse; width: 100%; background: var(--surface); font-size: .86rem; }
+  th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--border); }
+  th { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--subtle); font-weight: 700; background: var(--surface-2); }
+  tr:last-child td { border-bottom: none; }
+  td .m { font-family: var(--mono); font-weight: 600; color: var(--accent-ink); }
+  td.method { font-family: var(--mono); font-weight: 700; font-size: .8rem; }
+
+  /* arc timeline */
+  .arc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .arc .act {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+    box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+  }
+  .arc .act::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); opacity: .5; }
+  .arc .act .n { font-family: var(--mono); font-size: .7rem; color: var(--accent); font-weight: 700; }
+  .arc .act .h { font-size: .9rem; font-weight: 700; margin: 5px 0 4px; letter-spacing: -.01em; }
+  .arc .act .sha { font-family: var(--mono); font-size: .66rem; color: var(--subtle); }
+
+  /* act slide layout */
+  .act-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+  .act-head .an { font-family: var(--mono); font-size: .9rem; font-weight: 800; color: var(--accent); }
+  .act-head .sha { font-family: var(--mono); font-size: .74rem; color: var(--subtle); margin-left: auto; }
+  .act-cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; align-items: start; margin-top: 16px; }
+
+  .footer-note { margin-top: 20px; font-size: .8rem; color: var(--subtle); }
+  .footer-note code { font-size: .82em; }
+
+  /* nav */
+  .nav { position: fixed; bottom: 18px; left: 0; right: 0; z-index: 30; display: flex; align-items: center; justify-content: center; gap: 16px; pointer-events: none; }
+  .nav button {
+    pointer-events: auto; appearance: none; border: 1px solid var(--border-strong); background: var(--surface);
+    color: var(--text); width: 42px; height: 42px; border-radius: 12px; cursor: pointer; font-size: 17px;
+    box-shadow: var(--shadow-md); transition: transform .12s ease, color .12s ease, border-color .12s ease;
+  }
+  .nav button:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-2px); }
+  .nav button:disabled { opacity: .35; cursor: default; transform: none; color: var(--muted); }
+  .dots { pointer-events: auto; display: flex; gap: 7px; align-items: center; background: var(--surface); border: 1px solid var(--border); padding: 8px 12px; border-radius: 999px; box-shadow: var(--shadow-md); max-width: 60vw; overflow-x: auto; }
+  .dot-b { width: 8px; height: 8px; border-radius: 50%; border: none; background: var(--border-strong); cursor: pointer; padding: 0; flex: none; transition: background .2s, transform .2s; }
+  .dot-b.on { background: var(--accent); transform: scale(1.35); }
+
+  @media (max-width: 780px) {
+    .g2, .g3, .g4, .pirv, .arc, .act-cols { grid-template-columns: 1fr; }
+    .swatches { grid-template-columns: repeat(3, 1fr); }
+    .slide { padding: 74px 6vw 96px; }
+    .act-head .sha { margin-left: 0; width: 100%; }
+    .pirv .step::after { content: ""; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .progress, .nav button, .tbtn { transition: none; }
+  }
+
+  /* print → PDF export: 16:9 pages, one slide each, backgrounds preserved */
+  @media print {
+    @page { size: 1280px 720px; margin: 0; }
+    .deck-root { height: auto; overflow: visible; background: #fff; }
+    .deck-root, .deck-root * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .brand, .topright, .nav, .progress { display: none; }
+    .stage { position: static; }
+    .slide {
+      position: static; opacity: 1; visibility: visible; transform: none;
+      break-after: page; page-break-after: always;
+      height: 720px; min-height: 0; padding: 46px 60px; overflow: hidden;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+  }
+</style>
+
+<div class="deck-root" id="deck">
+  <div class="progress" id="progress"></div>
+
+  <div class="brand"><span class="mark">M</span> MiniTrack <small>&nbsp;· Live Build Deck</small></div>
+  <div class="topright">
+    <span class="counter"><b id="cur">01</b> / <span id="tot">15</span></span>
+    <button class="tbtn" id="themeBtn" title="Toggle light / dark" aria-label="Toggle theme">◑</button>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · COVER -->
+    <section class="slide cover is-active">
+      <div class="slide-inner">
+        <span class="eyebrow">K21 Academy · Course 2606: Claude AI</span>
+        <h1>Build MiniTrack's frontend&nbsp;— <span style="color:var(--accent)">live</span>.</h1>
+        <p class="lede">A finished design system on one side, a real API contract on the other. In eight prompted acts, we turn them into a complete, accessible React&nbsp;+&nbsp;Vite app — and let a reviewer agent and tests prove it's right.</p>
+        <div class="cover-meta">
+          <span class="chip"><span class="dot"></span> React + Vite + TypeScript</span>
+          <span class="chip"><span class="dot"></span> Design system: "MiniTrack Precision"</span>
+          <span class="chip"><span class="dot"></span> Plan → Implement → Review → Verify</span>
+        </div>
+        <p class="kbd-hint">Navigate with <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> · press <kbd>End</kbd> to jump to the wrap · the copy-paste prompts live in <span style="color:var(--accent)">RUNBOOK.md</span></p>
+      </div>
+    </section>
+
+    <!-- 2 · WHAT WE'RE BUILDING -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">The target</span>
+        <h2>Five screens. Nothing invented.</h2>
+        <p class="lede" style="margin-bottom:22px">MiniTrack is a minimalist task tracker. You connect with an API key, then view, create, edit, complete, and delete simple tasks.</p>
+        <div class="grid g3">
+          <div class="card"><h3><span class="num">/connect</span></h3><p>Enter an API key (no accounts). Show/hide field, opt-in "remember this session," inline error.</p></div>
+          <div class="card"><h3><span class="num">/tasks</span></h3><p>Filter All / Active / Completed, task cards, "Load more," inline complete &amp; delete.</p></div>
+          <div class="card"><h3><span class="num">/tasks/:id</span></h3><p>One task, its badges, and only the actions that exist.</p></div>
+          <div class="card"><h3><span class="num">/tasks/new · edit</span></h3><p>One shared form for create and edit, with matching validation.</p></div>
+          <div class="card"><h3><span class="num">*</span></h3><p>A friendly Not-Found with a way back.</p></div>
+          <div class="card" style="background:var(--accent-soft); border-color:color-mix(in srgb,var(--accent) 25%,transparent)"><h3 style="color:var(--accent-ink)">The guardrail</h3><p style="color:var(--accent-ink)">A task is <b>only</b> id, title, description, priority, completed. No due dates, assignees, tags, comments — or "Reopen."</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · TWO INPUTS -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">Where the build starts</span>
+        <h2>Two inputs feed everything.</h2>
+        <div class="grid g2" style="margin-top:18px">
+          <div class="card">
+            <h3>🎨 A design system, as CSS</h3>
+            <p style="margin-bottom:12px">Generated as "MiniTrack Precision" and handed to us finished — we consume it as-is.</p>
+            <ul class="clean">
+              <li><code>DESIGN.md</code> — the written spec</li>
+              <li><code>tokens.css</code> — colors, type, spacing, radius, shadow</li>
+              <li><code>typography.css</code> — <code>.text-headline-*</code> utilities</li>
+              <li><code>components.css</code> — <code>.btn · .form-field · .badge · .task-card · .dialog</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>🔌 A real backend contract</h3>
+            <p style="margin-bottom:12px">A FastAPI + SQLite JSON API — decoupled, CORS-enabled, key-protected.</p>
+            <ul class="clean">
+              <li>The <code>app/</code> layered backend (routes → services → data)</li>
+              <li>The behavioral contract in <code>spec.md</code></li>
+              <li>Auth via an <code>X-API-Key</code> header</li>
+              <li><b>Four contract details</b> that will bite if ignored (slide&nbsp;6)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout note" style="margin-top:16px"><span class="ic">💡</span><div><span class="label">The teaching move</span>We start from a delivered design system and wire React <em>to</em> it — using its global classes, not new CSS Modules.</div></div>
+      </div>
+    </section>
+
+    <!-- 4 · PIRV -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">The method</span>
+        <h2>Every act is one PIRV loop.</h2>
+        <p class="lede" style="margin-bottom:22px">We don't make the smallest possible edit. We plan the slice, implement it in the right place, review it against the contract, and verify it runs.</p>
+        <div class="pirv">
+          <div class="card step"><div class="letter">P</div><h3>Plan</h3><p>Name the slice and the contract rules it must honor — before any code.</p></div>
+          <div class="card step"><div class="letter">I</div><h3>Implement</h3><p>Prompt Claude to build it, with the gotchas baked into the prompt.</p></div>
+          <div class="card step"><div class="letter">R</div><h3>Review</h3><p>A read-only <code>frontend-reviewer</code> agent checks it against <code>spec.md</code>.</p></div>
+          <div class="card step"><div class="letter">V</div><h3>Verify</h3><p>Run it: dev server, typecheck, lint, and the Vitest suite.</p></div>
+        </div>
+        <div class="callout good" style="margin-top:18px"><span class="ic">✅</span><div><span class="label">Why it matters here</span>The first build discovered the contract's sharp edges the hard way. This time we <b>front-load</b> them, so the live build is right the first time.</div></div>
+      </div>
+    </section>
+
+    <!-- 4.5 · WHERE THE DESIGN CAME FROM -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">Optional aside · design-to-code</span>
+        <h2>The design system didn't appear by magic.</h2>
+        <p class="lede" style="margin-bottom:18px">It was <b>generated</b> from a one-paragraph brief by a design tool — Google&nbsp;Stitch — and you can prototype the same brief in Figma&nbsp;Make. Same words, two tools; the tokens they produce are exactly what our CSS encodes.</p>
+        <div class="act-cols" style="margin-top:6px">
+          <div class="term">
+            <div class="term-bar"><span class="tl"><i></i><i></i><i></i></span><span class="name">Stitch / Figma Make — brief</span></div>
+<pre>Design "MiniTrack" — a minimalist task tracker.
+<span class="k">Corporate Minimalism</span>: near-white bg, white
+surfaces, Indigo #4f46e5 primary, Inter, 4px
+spacing, 8px cards, pill badges (icon + label),
+3 soft elevation levels, centered 880px.
+<span class="c"># then: generate the 5 screens, invent no fields</span></pre>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-family:var(--mono); font-size:.82rem; color:var(--muted)">
+              <span class="chip" style="box-shadow:none">brief</span> <span style="color:var(--accent)">→</span>
+              <span class="chip" style="box-shadow:none">Stitch / Figma Make</span> <span style="color:var(--accent)">→</span>
+              <span class="chip" style="box-shadow:none"><code style="border:none;background:none;padding:0;color:var(--accent-ink)">tokens.css</code></span>
+            </div>
+            <div class="callout note"><span class="ic">🎯</span><div><span class="label">The point</span>The prototype is a <b>picture to aim at</b>. The CSS in <code>src/styles/</code> — see <code>preview.html</code> — is what the app actually consumes in Acts 1–8.</div></div>
+            <div class="callout gotcha"><span class="ic">⚠️</span><div><span class="label">Gotcha</span>These tools will invent due dates / assignees if asked — resist it. And never paste a real API key into a design tool.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · DESIGN TOUR -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">The design system, on screen</span>
+        <h2>"MiniTrack Precision" — corporate minimalism.</h2>
+        <div class="grid g2" style="margin-top:14px; align-items:start">
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div class="swatches">
+              <div class="sw"><div class="chipc" style="background:#4f46e5"></div><div class="meta"><div class="nm">Primary</div><div class="hx">#4f46e5</div></div></div>
+              <div class="sw"><div class="chipc" style="background:#4338ca"></div><div class="meta"><div class="nm">Hover</div><div class="hx">#4338ca</div></div></div>
+              <div class="sw"><div class="chipc" style="background:#16a34a"></div><div class="meta"><div class="nm">Success</div><div class="hx">#16a34a</div></div></div>
+              <div class="sw"><div class="chipc" style="background:#dc2626"></div><div class="meta"><div class="nm">Danger</div><div class="hx">#dc2626</div></div></div>
+              <div class="sw"><div class="chipc" style="background:#f8fafc; border-bottom:1px solid #e2e8f0"></div><div class="meta"><div class="nm">Surface</div><div class="hx">#f8fafc</div></div></div>
+              <div class="sw"><div class="chipc" style="background:#0f172a"></div><div class="meta"><div class="nm">Text</div><div class="hx">#0f172a</div></div></div>
+            </div>
+            <div class="card" style="padding:14px 18px">
+              <div class="typescale">
+                <div><span class="lab">headline-3xl</span><span style="font-size:1.6rem;font-weight:700;letter-spacing:-.02em">Tasks</span></div>
+                <div><span class="lab">body-base</span><span style="font-size:1rem">A calm, scannable task list.</span></div>
+                <div style="border-bottom:none"><span class="lab">label-xs</span><span style="font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase">Priority</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <div class="card" style="padding:16px 18px">
+              <div class="demo" style="margin-bottom:12px">
+                <button class="ds-btn primary">Create task</button>
+                <button class="ds-btn secondary">Edit</button>
+                <button class="ds-btn danger">Delete</button>
+                <button class="ds-btn ghost">Cancel</button>
+              </div>
+              <div class="demo">
+                <span class="ds-badge b-high">▲ High</span>
+                <span class="ds-badge b-med">● Medium</span>
+                <span class="ds-badge b-low">▼ Low</span>
+                <span class="ds-badge b-active">Active</span>
+                <span class="ds-badge b-done">✓ Completed</span>
+              </div>
+            </div>
+            <div class="taskcard">
+              <div class="cb"></div>
+              <div>
+                <div class="t">Draft the Q3 report</div>
+                <div class="d">Pull the numbers, summarize wins, flag the two risks from last review.</div>
+                <div class="row"><span class="ds-badge b-high">▲ High</span><span class="ds-badge b-active">Active</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="footer-note">4px spacing base · soft radii (4 / 8 / 12px) · three elevation levels · badges are <b>never color alone</b> — always icon + label.</p>
+      </div>
+    </section>
+
+    <!-- 6 · CONTRACT GOTCHAS -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">The learnings — front-load these</span>
+        <h2>Four details that bit the first build.</h2>
+        <div class="grid g2" style="margin-top:8px; margin-bottom:16px">
+          <div class="callout gotcha"><span class="ic">①</span><div><span class="label">422 body</span><code>detail</code> is a plain <b>string</b>, not an array. Never index <code>detail[0].msg</code>.</div></div>
+          <div class="callout gotcha"><span class="ic">②</span><div><span class="label">PATCH /tasks/{id}</span>A <b>full replacement</b> — send the whole object; omitted fields reset; it can't change <code>completed</code>.</div></div>
+          <div class="callout gotcha"><span class="ic">③</span><div><span class="label">401 body</span>Has <b>no</b> <code>request_id</code> (404/422 do). Treat it as optional.</div></div>
+          <div class="callout gotcha"><span class="ic">④</span><div><span class="label">Connect</span>Validate the key against <code>GET /tasks</code>, <b>not</b> <code>/health</code> (health ignores the key).</div></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>Path</th><th>Note</th></tr></thead>
+            <tbody>
+              <tr><td class="method">GET</td><td><span class="m">/tasks</span></td><td>filter <code>?completed</code>, page <code>?limit&amp;offset</code> — <b>no total count</b></td></tr>
+              <tr><td class="method">POST</td><td><span class="m">/tasks</span></td><td>→ 201</td></tr>
+              <tr><td class="method">PATCH</td><td><span class="m">/tasks/{id}</span></td><td>full replacement</td></tr>
+              <tr><td class="method">POST</td><td><span class="m">/tasks/{id}/complete</span></td><td>one-way — <b>no reopen endpoint</b></td></tr>
+              <tr><td class="method">DELETE</td><td><span class="m">/tasks/{id}</span></td><td>→ 204, needs a confirm dialog</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · THE ARC -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">The build arc</span>
+        <h2>Eight acts — one commit each.</h2>
+        <div class="arc" style="margin-top:16px">
+          <div class="act"><div class="n">ACT 1</div><div class="h">Scaffold + Connect</div><div class="sha">ab8d9c6</div></div>
+          <div class="act"><div class="n">ACT 2</div><div class="h">Task list</div><div class="sha">9d01446</div></div>
+          <div class="act"><div class="n">ACT 3</div><div class="h">Create form</div><div class="sha">1eb8c15</div></div>
+          <div class="act"><div class="n">ACT 4</div><div class="h">Task detail</div><div class="sha">2aaf787</div></div>
+          <div class="act"><div class="n">ACT 5</div><div class="h">Edit + useFlash</div><div class="sha">7a30a7d</div></div>
+          <div class="act"><div class="n">ACT 6</div><div class="h">Mid-session 401</div><div class="sha">d313a63</div></div>
+          <div class="act"><div class="n">ACT 7</div><div class="h">Review pass</div><div class="sha">1a0bf22</div></div>
+          <div class="act"><div class="n">ACT 8</div><div class="h">Tests + verify</div><div class="sha">13ec334</div></div>
+        </div>
+        <div class="callout note" style="margin-top:20px"><span class="ic">🧭</span><div><span class="label">Rhythm per act</span>Say the goal → paste the prompt → watch the screen → call out the gotcha → verify. Each act is a checkpoint you can stop and discuss at.</div></div>
+      </div>
+    </section>
+
+    <!-- 8 · ACT 1 -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="act-head"><span class="an">ACT 1</span><h2 style="margin:0">Scaffold + design system + Connect</h2><span class="sha">↔ ab8d9c6</span></div>
+        <p class="lede">Stand up Vite + React + TS in <code>frontend/</code>, wire in the delivered CSS, and build the API-key entry point. You <em>connect</em> — you don't <em>sign in</em>.</p>
+        <div class="act-cols">
+          <div class="term">
+            <div class="term-bar"><span class="tl"><i></i><i></i><i></i></span><span class="name">claude — minitrack_backend</span></div>
+<pre><span class="c"># paste into Claude Code</span>
+Scaffold a Vite React+TS app in <span class="k">frontend/</span>.
+Copy DESIGN.md + src/styles/*.css into
+frontend/src/styles and import <span class="k">index.css</span> once.
+Style with the design system's global classes
+(.btn, .form-field) — no new CSS Modules.
+Add router + ProtectedRoute + Layout, a
+framework-agnostic fetch client (X-API-Key,
+status:0 on network fail), ApiKeyContext, and a
+/connect page that validates via <span class="k">GET /tasks</span>.</pre>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <ul class="clean">
+              <li><b>Wire the design system:</b> one <code>index.css</code> import</li>
+              <li><b>Typed client:</b> no React import — unit-testable</li>
+              <li><b>Key safety:</b> in memory; <code>sessionStorage</code> opt-in only</li>
+            </ul>
+            <div class="callout gotcha"><span class="ic">⚠️</span><div><span class="label">Gotcha</span>Validate against <code>GET /tasks</code>, not <code>/health</code> — health accepts any key.</div></div>
+          </div>
+        </div>
+        <p class="footer-note">✔ Verify — <code>npm run dev</code> → the Connect screen renders in Indigo; a wrong key is rejected, <code>demo-key-123</code> lands on <code>/tasks</code>.</p>
+      </div>
+    </section>
+
+    <!-- 9 · ACT 2 -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="act-head"><span class="an">ACT 2</span><h2 style="margin:0">Task list — filters &amp; Load more</h2><span class="sha">↔ 9d01446</span></div>
+        <p class="lede">The primary screen: URL-driven filters and pagination with <em>no total count</em>.</p>
+        <div class="act-cols">
+          <div class="term">
+            <div class="term-bar"><span class="tl"><i></i><i></i><i></i></span><span class="name">claude — frontend/</span></div>
+<pre>Build /tasks with a .task-card list and .badge
+priority/status (icon + label, never color alone).
+Filter All/Active/Completed in the URL (?status=).
+Pagination is <span class="k">Load more</span>: append, raise offset,
+<span class="k">hide when a short page returns</span>, reset on filter
+change. Complete in place; Delete via a .dialog
+confirm. loading / empty / error states, aria-live.</pre>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <ul class="clean">
+              <li><b>Filter state</b> lives in <code>?status=active</code></li>
+              <li><b>Complete</b> → <code>POST /tasks/{id}/complete</code></li>
+              <li><b>Delete</b> → accessible <code>&lt;dialog&gt;</code> → 204</li>
+            </ul>
+            <div class="callout gotcha"><span class="ic">⚠️</span><div><span class="label">Gotcha</span>No total → <b>Load more</b>, hidden on a short page, reset on filter change. No numbered pages.</div></div>
+          </div>
+        </div>
+        <p class="footer-note">✔ Verify — filter chips change the URL &amp; list; Complete moves a task; Delete asks first.</p>
+      </div>
+    </section>
+
+    <!-- 10 · ACT 3 -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="act-head"><span class="an">ACT 3</span><h2 style="margin:0">Create — shared form &amp; validation</h2><span class="sha">↔ 1eb8c15</span></div>
+        <p class="lede">A reusable <code>&lt;TaskForm&gt;</code> and validation that matches the backend exactly.</p>
+        <div class="act-cols">
+          <div class="term">
+            <div class="term-bar"><span class="tl"><i></i><i></i><i></i></span><span class="name">claude — frontend/</span></div>
+<pre>Build /tasks/new → POST /tasks (201). Extract a
+reusable &lt;TaskForm&gt; + &lt;FormField&gt; on the .form-field
+classes, shared with edit. Title required (trim;
+block whitespace-only before any request). Priority
+default <span class="k">medium</span>. Disable submit in flight.
+On 422, render the <span class="k">detail STRING</span> inline —
+never detail[0].msg.</pre>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <ul class="clean">
+              <li><b>Trim &amp; block</b> whitespace-only titles client-side</li>
+              <li><b>No double POST</b> — disable while submitting</li>
+              <li><b>Reuse</b> the same form for edit</li>
+            </ul>
+            <div class="callout gotcha"><span class="ic">⚠️</span><div><span class="label">Gotcha</span><code>422 detail</code> is a <b>string</b>. <code>detail[0].msg</code> throws.</div></div>
+          </div>
+        </div>
+        <p class="footer-note">✔ Verify — a blank title is blocked before any call; a forced 422 renders its string inline.</p>
+      </div>
+    </section>
+
+    <!-- 11 · ACT 4 -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="act-head"><span class="an">ACT 4</span><h2 style="margin:0">Task detail — only real actions</h2><span class="sha">↔ 2aaf787</span></div>
+        <p class="lede">Model the screen as explicit states, and expose only capabilities the API has.</p>
+        <div class="act-cols">
+          <div class="term">
+            <div class="term-bar"><span class="tl"><i></i><i></i><i></i></span><span class="name">claude — frontend/</span></div>
+<pre>Build /tasks/:taskId → GET /tasks/{id} as a
+discriminated union: loading | loaded | notfound |
+error. Show id, title, description, badges. Actions:
+Edit, Complete (<span class="k">only when active</span>), Delete
+(confirm), Back. <span class="r">No "Reopen" action.</span>
+Unknown id → 404 → "Task not found" + link back.</pre>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <ul class="clean">
+              <li><b>State machine</b>, not scattered booleans</li>
+              <li><b>Complete</b> hides once done</li>
+              <li><b>404</b> is a first-class state</li>
+            </ul>
+            <div class="callout gotcha"><span class="ic">⚠️</span><div><span class="label">Gotcha</span><b>No Reopen</b> — completion is one-way; the backend has no un-complete endpoint.</div></div>
+          </div>
+        </div>
+        <p class="footer-note">✔ Verify — a completed task shows no Reopen; <code>/tasks/999999</code> → "Task not found."</p>
+      </div>
+    </section>
+
+    <!-- 12 · ACT 5 -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="act-head"><span class="an">ACT 5</span><h2 style="margin:0">Edit — the full-replacement PATCH</h2><span class="sha">↔ 7a30a7d</span></div>
+        <p class="lede">The subtlest rule of the day, plus a small shared-hook refactor.</p>
+        <div class="act-cols">
+          <div class="term">
+            <div class="term-bar"><span class="tl"><i></i><i></i><i></i></span><span class="name">claude — frontend/</span></div>
+<pre>Build /tasks/:taskId/edit → PATCH /tasks/{id},
+reusing &lt;TaskForm&gt; in edit mode (load, pre-fill).
+PATCH is a <span class="k">FULL replacement</span>: submit the
+entire TaskInput every time — never partial —
+and <span class="r">never send or touch completed</span>.
+Extract a shared useFlash hook; reuse on list+detail.</pre>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <ul class="clean">
+              <li><b>Load first,</b> then pre-fill the fields</li>
+              <li><b>Whole object</b> on every save</li>
+              <li><b>useFlash</b> shared across screens</li>
+            </ul>
+            <div class="callout gotcha"><span class="ic">⚠️</span><div><span class="label">Gotcha</span>Send only the changed field and PATCH silently <b>wipes the rest</b>. Never include <code>completed</code>.</div></div>
+          </div>
+        </div>
+        <p class="footer-note">✔ Verify — edit only the title → description &amp; priority are preserved, not reset.</p>
+      </div>
+    </section>
+
+    <!-- 13 · ACT 6 -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="act-head"><span class="an">ACT 6</span><h2 style="margin:0">Mid-session 401 — reset the session</h2><span class="sha">↔ d313a63</span></div>
+        <p class="lede">Handle a key that stops working <em>after</em> you connected — revoked or expired.</p>
+        <div class="act-cols">
+          <div class="term">
+            <div class="term-bar"><span class="tl"><i></i><i></i><i></i></span><span class="name">claude — frontend/</span></div>
+<pre>Add setUnauthorizedHandler to the client. On any
+/tasks* <span class="k">401</span> with a stored key: clear the key
+(memory + sessionStorage), record a reason, and
+redirect to /connect, which shows that reason.
+Remember a 401 has <span class="r">no request_id</span> — don't
+rely on it here.</pre>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <ul class="clean">
+              <li><b>Global handler</b> in the client, not per-screen</li>
+              <li><b>Clear + redirect</b>, don't just show an error</li>
+              <li><b>Reason</b> surfaced on the Connect page</li>
+            </ul>
+            <div class="callout gotcha"><span class="ic">⚠️</span><div><span class="label">Gotcha</span>Show an in-place error and the user is <b>stuck</b> on a screen that can't load. Reset the session.</div></div>
+          </div>
+        </div>
+        <p class="footer-note">✔ Verify — change the backend key mid-session → the next action bounces to <code>/connect</code> with the reason.</p>
+      </div>
+    </section>
+
+    <!-- 14 · ACT 7 + 8 -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">Acts 7 &amp; 8 · Review + Verify</span>
+        <h2>Close the loop — an agent, then tests.</h2>
+        <div class="act-cols" style="margin-top:12px">
+          <div class="card">
+            <h3><span class="num">ACT 7</span> Review · <span class="mono" style="font-size:.72rem;color:var(--subtle)">1a0bf22</span></h3>
+            <p style="margin:8px 0 12px">A read-only <code>frontend-reviewer</code> subagent checks the build against <code>spec.md</code>: invented features, wrong endpoints, partial PATCH, key exposure, missing states, accessibility.</p>
+            <ul class="clean">
+              <li>Move focus to "Tasks" + announce after actions</li>
+              <li>Extract a shared <code>toDisplayError</code> helper</li>
+              <li>Confirm <code>.env</code> is gitignored</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3><span class="num">ACT 8</span> Verify · <span class="mono" style="font-size:.72rem;color:var(--subtle)">13ec334</span></h3>
+            <p style="margin:8px 0 12px">A Vitest + RTL suite locks the load-bearing behaviors, plus a <code>MANUAL_TESTING.md</code> for the keyboard/screen-reader cases.</p>
+            <div class="term" style="box-shadow:var(--shadow-sm)">
+              <div class="term-bar"><span class="tl"><i></i><i></i><i></i></span><span class="name">frontend/</span></div>
+<pre>npm run typecheck &amp;&amp; npm run lint &amp;&amp; npm test
+<span class="g">✓ client · connect · load-more · detail · edit</span></pre>
+            </div>
+          </div>
+        </div>
+        <div class="callout gotcha" style="margin-top:16px"><span class="ic">⚠️</span><div><span class="label">Gotcha</span>Native <code>&lt;dialog&gt;</code> needs a jsdom polyfill (<code>showModal</code>/<code>close</code>) or the dialog tests fail.</div></div>
+      </div>
+    </section>
+
+    <!-- 15 · WRAP -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">Wrap</span>
+        <h2>What they take away.</h2>
+        <div class="grid g3" style="margin:18px 0">
+          <div class="card"><h3>Not typing speed</h3><p>The value was <b>front-loading the contract</b> so the build was right the first time.</p></div>
+          <div class="card"><h3>The loop, not the code</h3><p>Plan → Implement → <b>Review</b> (an agent) → <b>Verify</b> (tests) makes correctness repeatable.</p></div>
+          <div class="card"><h3>Design as input</h3><p>A delivered design system becomes a UI by <b>wiring components to its classes</b>.</p></div>
+        </div>
+        <div class="callout note"><span class="ic">🚀</span><div><span class="label">To extend</span>Add a new field end-to-end — backend <code>spec.md</code> first, then type → client → form → tests — and watch the reviewer keep you honest.</div></div>
+        <p class="kbd-hint" style="margin-top:26px">Full copy-paste prompts &amp; the contract cheat-sheet → <span style="color:var(--accent)">facilitator/RUNBOOK.md</span> · press <kbd>Home</kbd> to restart</p>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="nav">
+    <button id="prev" aria-label="Previous slide">←</button>
+    <div class="dots" id="dots"></div>
+    <button id="next" aria-label="Next slide">→</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var stage = document.getElementById('stage');
+    var progress = document.getElementById('progress');
+    var curEl = document.getElementById('cur');
+    var totEl = document.getElementById('tot');
+    var dots = document.getElementById('dots');
+    var prev = document.getElementById('prev');
+    var next = document.getElementById('next');
+    var i = 0;
+    totEl.textContent = String(slides.length).padStart(2, '0');
+
+    slides.forEach(function (s, idx) {
+      var b = document.createElement('button');
+      b.className = 'dot-b';
+      b.setAttribute('aria-label', 'Go to slide ' + (idx + 1));
+      b.addEventListener('click', function () { go(idx); });
+      dots.appendChild(b);
+    });
+    var dotEls = Array.prototype.slice.call(dots.children);
+
+    function go(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach(function (s, idx) { s.classList.toggle('is-active', idx === i); });
+      dotEls.forEach(function (d, idx) { d.classList.toggle('on', idx === i); });
+      curEl.textContent = String(i + 1).padStart(2, '0');
+      progress.style.width = ((i + 1) / slides.length * 100) + '%';
+      prev.disabled = i === 0;
+      next.disabled = i === slides.length - 1;
+      if (location.hash !== '#' + (i + 1)) history.replaceState(null, '', '#' + (i + 1));
+    }
+    function step(d) { go(i + d); }
+
+    prev.addEventListener('click', function () { step(-1); });
+    next.addEventListener('click', function () { step(1); });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); step(1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); step(-1); }
+      else if (e.key === 'Home') { e.preventDefault(); go(0); }
+      else if (e.key === 'End') { e.preventDefault(); go(slides.length - 1); }
+    });
+
+    // touch swipe
+    var x0 = null;
+    stage.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener('touchend', function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+      x0 = null;
+    }, { passive: true });
+
+    // theme toggle
+    var themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', function () {
+      var root = document.documentElement;
+      var cur = root.getAttribute('data-theme');
+      if (!cur) {
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        cur = prefersDark ? 'dark' : 'light';
+      }
+      root.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+    });
+
+    var start = parseInt((location.hash || '').replace('#', ''), 10);
+    go(isNaN(start) ? 0 : start - 1);
+  })();
+</script>
