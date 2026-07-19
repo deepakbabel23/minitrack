@@ -1,0 +1,321 @@
+/*
+ * MiniTrack — Component Styles
+ * ---------------------------------------------------------------------------
+ * The named components from DESIGN.md ▸ Components (Buttons, FormField, Badges,
+ * TaskCard, ConfirmDialog), expressed as plain CSS classes that consume the
+ * tokens from tokens.css. Load tokens.css (and typography.css) before this file.
+ *
+ * Mirrors the interactive "MiniTrack Design System" Design Compose prototype:
+ * same colors, radii, elevation, and mobile reflow — minus the runtime.
+ * Badges are "never color alone": each carries an icon + text label in markup.
+ */
+
+/* ======================================================================== */
+/* Buttons                                                                  */
+/* Shared shape: 8px radius, label-sized 600-weight text, soft transition.  */
+/* ======================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size); /* 0.875rem */
+  font-weight: 600;
+  line-height: 1.25;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-lg); /* 8px — Medium shape */
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Primary — solid Indigo-600, white text, Level 1 lift. Main action. */
+.btn--primary {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm);
+}
+.btn--primary:hover {
+  background: var(--color-primary);
+}
+
+/* Secondary — white surface, Slate-200 hairline, Slate-900 text. */
+.btn--secondary {
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-border-slate-200);
+}
+.btn--secondary:hover {
+  background: var(--color-bg-slate-50);
+}
+
+/* Danger — solid Red-600. Destructive actions only. */
+.btn--danger {
+  background: var(--color-danger-red);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm);
+}
+.btn--danger:hover {
+  background: var(--color-danger-red-hover);
+}
+
+/* Ghost — no chrome. Cancel / secondary navigation. */
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+.btn--ghost:hover {
+  background: var(--color-status-active-bg); /* Slate-100 */
+}
+
+/* ======================================================================== */
+/* FormField                                                                */
+/* Label (label-md) + input/textarea (8px radius) + optional error text.    */
+/* ======================================================================== */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-field__label {
+  font-family: var(--font-sans);
+  font-size: var(--text-label-md-size);
+  font-weight: var(--text-label-md-weight);
+  line-height: var(--text-label-md-leading);
+  color: var(--color-on-surface);
+}
+
+.form-field__input,
+.form-field__textarea {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-on-surface);
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-border-slate-200);
+  border-radius: var(--radius-lg); /* 8px */
+  box-shadow: var(--shadow-sm);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-field__textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+.form-field__input::placeholder,
+.form-field__textarea::placeholder {
+  color: var(--color-text-subtle);
+}
+
+/* 2px Indigo-500 ring on focus (DESIGN.md ▸ FormField). */
+.form-field__input:focus,
+.form-field__textarea:focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+}
+
+/* Error state — Red-600 border + ring, and Red-600 helper text. */
+.form-field--error .form-field__input,
+.form-field--error .form-field__textarea {
+  border-color: var(--color-danger-red);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
+}
+
+.form-field__error {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--color-danger-red);
+}
+
+/* ======================================================================== */
+/* Badges — pill-shaped (full radius) to distinguish from buttons.          */
+/* ======================================================================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: var(--text-label-xs-size); /* 0.75rem */
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.badge__icon {
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+/* PriorityBadge — light bg + dark text, geometric icon (▲ ● ▼). */
+.badge--priority-high {
+  background: var(--color-priority-high-bg);
+  color: var(--color-priority-high-text);
+}
+.badge--priority-medium {
+  background: var(--color-priority-medium-bg);
+  color: var(--color-priority-medium-text);
+}
+.badge--priority-low {
+  background: var(--color-priority-low-bg);
+  color: var(--color-priority-low-text);
+}
+
+/* StatusBadge — neutral "Active" / green "Completed" (with ✓). */
+.badge--status-active {
+  background: var(--color-status-active-bg);
+  color: var(--color-status-active-text);
+}
+.badge--status-completed {
+  background: var(--color-status-completed-bg);
+  color: var(--color-status-completed-text);
+}
+
+/* ======================================================================== */
+/* TaskCard — the primary UI unit. 8px radius, Level 1 shadow, white.       */
+/* Desktop: checkbox | body | actions in a row. Mobile: actions stack.      */
+/* ======================================================================== */
+.task-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-border-slate-200);
+  border-radius: var(--radius-lg); /* 8px */
+  box-shadow: var(--shadow-sm);
+  padding: 1.15rem 1.25rem;
+}
+
+/* Completed cards read as "done": dimmed. */
+.task-card--completed {
+  opacity: 0.7;
+}
+
+/* Checkbox — 4px radius (Small shape). Filled green when complete. */
+.task-card__checkbox {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-outline-variant);
+  border-radius: var(--radius); /* 4px */
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-primary);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.task-card--completed .task-card__checkbox {
+  border: none;
+  background: var(--color-tertiary-container); /* success green */
+}
+
+.task-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.task-card__title {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-base-size); /* 1rem */
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.task-card--completed .task-card__title {
+  text-decoration: line-through;
+  color: var(--color-text-subtle);
+}
+
+.task-card__description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.task-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* Mobile reflow (DESIGN.md ▸ Layout & Spacing): actions stack below content. */
+@media (max-width: 640px) {
+  .task-card {
+    flex-wrap: wrap;
+  }
+  .task-card__actions {
+    flex-basis: 100%;
+    padding-left: calc(22px + var(--space-4)); /* align under the body */
+  }
+}
+
+/* ======================================================================== */
+/* ConfirmDialog — Level 3 modal over a dimmed, blurred backdrop.           */
+/* ======================================================================== */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: rgba(19, 27, 46, 0.45); /* on-surface @ 45% — backdrop dim */
+  backdrop-filter: blur(2px);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 400px;
+  padding: 1.75rem;
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-xl); /* 12px — Large shape */
+  box-shadow: var(--shadow-lg); /* Level 3 */
+}
+
+.dialog__title {
+  font-family: var(--font-sans);
+  font-size: var(--text-headline-xl-size); /* 1.25rem */
+  font-weight: var(--text-headline-xl-weight);
+  line-height: var(--text-headline-xl-leading);
+  color: var(--color-on-surface);
+  margin: 0 0 var(--space-2);
+}
+
+.dialog__body {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-5);
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}

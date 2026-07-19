@@ -1,0 +1,409 @@
+/*
+ * MiniTrack — App shell
+ * ---------------------------------------------------------------------------
+ * NOT part of the delivered design system. tokens/typography/components/index
+ * are consumed byte-for-byte as shipped; this file supplies only what they
+ * deliberately leave out.
+ *
+ * components.css covers Button, FormField, Badge, TaskCard and ConfirmDialog —
+ * and nothing else. It styles no page shell, no <select>, no filter control, no
+ * empty state and no flash message. src/styles/preview.html shows how the
+ * design's own author filled that gap: a local <style> block defining .page,
+ * .section, .panel, .row and .stack. Those names are reused verbatim here.
+ *
+ * Rule for editing this file: every value is a var() from tokens.css. No new
+ * colours, sizes, radii or shadows. The one documented exception is the select
+ * chevron (see below), because a data: URI cannot read a custom property.
+ *
+ * Loaded BEFORE index.css so the design system always wins on any overlap.
+ */
+
+/* ======================================================================== */
+/* Base                                                                     */
+/* ======================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg-slate-50);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-base-size);
+  line-height: var(--text-body-base-leading);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Form controls don't inherit type in any browser. */
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--color-primary-container);
+}
+
+/* ======================================================================== */
+/* Layout helpers — names lifted from preview.html                          */
+/* ======================================================================== */
+.page {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--gutter) var(--space-10);
+}
+
+/* Connect screen: a single narrow card. */
+.page--narrow {
+  max-width: 26rem;
+}
+
+.section {
+  margin-bottom: var(--space-8);
+}
+
+.panel {
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-border-slate-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.row--between {
+  justify-content: space-between;
+}
+
+.row--end {
+  justify-content: flex-end;
+}
+
+.row--tight {
+  gap: var(--space-2);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stack--tight {
+  gap: var(--space-2);
+}
+
+.stack--loose {
+  gap: var(--space-5);
+}
+
+/* ======================================================================== */
+/* App header — sticky. z-index stays BELOW .dialog-overlay (50).           */
+/* ======================================================================== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-surface-container-lowest);
+  border-bottom: 1px solid var(--color-border-slate-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  min-height: 3.5rem;
+  padding-inline: var(--gutter);
+}
+
+.app-header__wordmark {
+  color: var(--color-primary);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.app-header__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ======================================================================== */
+/* FormField — the select the design system doesn't cover.                  */
+/* Mirrors .form-field__input exactly, then removes the native arrow.       */
+/* ======================================================================== */
+.form-field__select {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-on-surface);
+  padding: 0.625rem 2rem 0.625rem 0.75rem;
+  border: 1px solid var(--color-border-slate-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  /* A bare <select> inherits the page background and reads as broken next to
+     the white inputs, so the surface is set explicitly. The chevron hex mirrors
+     --color-on-surface-variant (#464555); a data: URI can't read a var(). */
+  appearance: none;
+  background-color: var(--color-surface-container-lowest);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23464555' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+.form-field__select:focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+}
+
+.form-field--error .form-field__select {
+  border-color: var(--color-danger-red);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
+}
+
+/* ======================================================================== */
+/* Segmented filter — All / Active / Completed                              */
+/* A toggle-button group: <div role="group"> of <button aria-pressed>.      */
+/* ======================================================================== */
+.segmented {
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--color-bg-slate-50);
+  border: 1px solid var(--color-border-slate-200);
+  border-radius: var(--radius-lg);
+}
+
+.segmented__option {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-label-md-size);
+  font-weight: var(--text-label-md-weight);
+  line-height: var(--text-label-md-leading);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.segmented__option:hover {
+  color: var(--color-on-surface);
+}
+
+/* Selection is driven by aria-pressed, so state can't drift from the a11y tree. */
+.segmented__option[aria-pressed="true"] {
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.segmented__option:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ======================================================================== */
+/* Flash — a static inline banner, not a toast.                             */
+/* .flash-region is ALWAYS mounted; only its contents change, so a           */
+/* role="status" announcement actually fires.                               */
+/* ======================================================================== */
+.flash-region {
+  min-height: 0;
+}
+
+.flash {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--text-body-sm-size);
+  font-weight: var(--text-label-md-weight);
+}
+
+.flash--success {
+  background: var(--color-status-completed-bg);
+  color: var(--color-status-completed-text);
+}
+
+.flash--error {
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+}
+
+.flash__icon {
+  font-size: 0.9em;
+  line-height: 1;
+}
+
+/* ======================================================================== */
+/* Empty / loading / error states                                           */
+/* ======================================================================== */
+.empty-state {
+  padding: var(--space-8) var(--space-5);
+  text-align: center;
+  border: 1px dashed var(--color-border-slate-200);
+  border-radius: var(--radius-lg);
+}
+
+.empty-state__title {
+  margin: 0 0 var(--space-2);
+  color: var(--color-on-surface);
+}
+
+.empty-state__body {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.state-block {
+  padding: var(--space-8) var(--space-5);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* ======================================================================== */
+/* Native <dialog> reconciliation — REQUIRED.                               */
+/* components.css styles .dialog-overlay assuming a plain <div>. Rendering  */
+/* it on a real <dialog> needs all three of these:                          */
+/*   1. the UA sets width/height: fit-content and border: solid, so an      */
+/*      unreset dialog is a bordered box hugging its content, not an overlay*/
+/*   2. the UA's dialog:not([open]) { display: none } LOSES to the author-  */
+/*      level .dialog-overlay { display: flex }, so a CLOSED dialog would   */
+/*      otherwise sit permanently over the app                              */
+/*   3. .dialog-overlay paints its own dim, so ::backdrop must not double it*/
+/* ======================================================================== */
+dialog.dialog-overlay {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  padding: var(--space-5);
+  color: inherit;
+}
+
+dialog.dialog-overlay:not([open]) {
+  display: none;
+}
+
+dialog.dialog-overlay::backdrop {
+  background: transparent;
+}
+
+/* ======================================================================== */
+/* Small utilities                                                          */
+/* ======================================================================== */
+
+/* components.css designed .btn for <button>, which has no underline and no
+   default colour. We also apply it to <Link>, so the anchor defaults have to be
+   neutralised — otherwise every link-shaped button renders underlined. This is
+   the trade for not wrapping buttons in a component. */
+a.btn {
+  text-decoration: none;
+}
+
+/* Destructive text action. preview.html does this with an inline style. */
+.btn--ghost-danger {
+  color: var(--color-danger-red);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* components.css has no :disabled rule — supply one for every variant. */
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 2-line description preview on a task card. */
+.task-card__description--clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-subtle {
+  color: var(--color-text-subtle);
+}
+
+.text-danger {
+  color: var(--color-danger-red);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Visible only once focused — first tab stop on every page. */
+.skip-link {
+  position: absolute;
+  left: var(--space-2);
+  top: calc(-1 * var(--space-10));
+  z-index: 60;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+/* The design system relies on a focus box-shadow, which disappears under
+   Windows High Contrast. Restore a real outline there. */
+@media (forced-colors: active) {
+  .form-field__input:focus,
+  .form-field__textarea:focus,
+  .form-field__select:focus,
+  .segmented__option[aria-pressed="true"] {
+    outline: 2px solid;
+    outline-offset: 1px;
+  }
+}
