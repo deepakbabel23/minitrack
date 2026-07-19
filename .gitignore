@@ -22,6 +22,16 @@ $RECYCLE.BIN/
 # SQLite database (created on first run)
 minitrack.db
 
+# Local environment — holds MINITRACK_API_KEYS. Never commit.
+# .env.example IS tracked and is the template to copy.
+.env
+.env.*
+!.env.example
+
+# Node / frontend
+node_modules/
+dist/
+
 # Python
 __pycache__/
 *.py[cod]
