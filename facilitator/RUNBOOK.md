@@ -30,6 +30,13 @@ and serves the JSON API the SPA talks to.
 - Keep the **backend running** the whole time (Act 0) so every screen makes real
   API calls in front of the room.
 
+> **On the commit references.** Each Act's *(mirrors commit …)* hash points at
+> this branch, `mt_fullstack_main`. The same runbook was also built out
+> independently on `main` / `mt_frontend_react` — same behaviour and the same
+> contract, but a different file layout (folder-per-page, and one shared
+> `TaskFormPage` instead of separate create and edit pages). Its hashes and paths
+> won't line up with these, so don't mix the two when reading along.
+
 ---
 
 ## Backend contract cheat-sheet (keep this on screen)
@@ -199,7 +206,7 @@ prompts.)*
 ---
 
 ## Act 1 — Scaffold + design system + Connect flow
-*(mirrors commit `ab8d9c6` — "Add React frontend with API-key Connect flow")*
+*(mirrors commit `59f8cff` — "Add React frontend with API-key Connect flow")*
 
 **Learn.** Stand up the app skeleton, wire in the delivered design system, and
 build the auth entry point. MiniTrack has no accounts — you *connect with an API
@@ -280,7 +287,7 @@ type. A wrong key → "That API key was rejected."; `demo-key-123` → lands on
 ---
 
 ## Act 2 — Task list: filters, Load more, complete & delete
-*(mirrors commit `9d01446`)*
+*(mirrors commit `ef4aacd`)*
 
 **Learn.** The primary screen. Teach URL-driven filter state and
 **offset pagination without a total count**.
@@ -323,7 +330,7 @@ is hidden.
 ---
 
 ## Act 3 — Create task: shared form + validation
-*(mirrors commit `1eb8c15`)*
+*(mirrors commit `c045eac`)*
 
 **Learn.** A reusable form and matching the backend's validation exactly.
 
@@ -352,7 +359,7 @@ backend 422 (e.g. temporarily bypass the client trim) → the string renders inl
 ---
 
 ## Act 4 — Task detail: only the actions that exist
-*(mirrors commit `2aaf787`)*
+*(mirrors commit `69c8d38`)*
 
 **Learn.** Model a screen as explicit states, and show only real capabilities.
 
@@ -376,7 +383,7 @@ Visit `/tasks/999999` → "Task not found."
 ---
 
 ## Act 5 — Edit: full-replacement PATCH + shared useFlash
-*(mirrors commit `7a30a7d`)*
+*(mirrors commit `69c8cff`)*
 
 **Learn.** The subtlest contract rule of the day, and a small refactor.
 
@@ -406,7 +413,7 @@ reset). `completed` is untouched.
 ---
 
 ## Act 6 — Mid-session 401: clear the session and redirect
-*(mirrors commit `d313a63`)*
+*(mirrors commit `8f2247e`)*
 
 **Learn.** Handle a key that stops working *after* you connected (revoked/expired).
 
@@ -430,7 +437,7 @@ uvicorn; the next action bounces you to `/connect` with the reason shown.
 ---
 
 ## Act 7 — Review pass with the `frontend-reviewer` subagent
-*(mirrors commit `1a0bf22`)*
+*(mirrors commit `71ff002`)*
 
 **Learn.** This is the **Review** step of PIRV — a read-only agent that checks the
 build against the contract and accessibility, so we're not the only reviewer.
@@ -451,9 +458,13 @@ color alone), (7) Load-more pagination semantics, (8) tests exist and pass. It
 reports concrete file:line findings and does not edit code.
 
 Then run that reviewer against `frontend/` and fix what it finds — expected:
-move focus to the "Tasks" heading and announce (role="status") after list
-complete/delete, extract a shared error->message helper (`src/api/errors.ts`
-`toDisplayError`), and confirm `.env` is gitignored.
+`.btn--ghost-danger` losing to `.btn--ghost` on specificity so every Delete
+renders as muted grey, a 404 on DELETE treated as a failure when already-gone is
+the outcome the user asked for, a failed "Load more" resetting to offset 0 and
+discarding the pages already loaded, focus dropping to <body> when the segmented
+filter is disabled mid-load, no focus move to the "Tasks" heading after a
+confirmed delete, and role="status" regions that mount together with their text
+(which screen readers routinely don't announce). Confirm `.env` is gitignored.
 ```
 
 **Gotcha.** Teach the loop, not just the code: **Plan → Implement → Review →
@@ -466,7 +477,7 @@ clean.
 ---
 
 ## Act 8 — Verify: tests + manual guide
-*(mirrors commit `13ec334`)*
+*(mirrors commit `4bb80dc`)*
 
 **Learn.** Close the loop with automated + manual verification.
 
@@ -488,9 +499,9 @@ Run `npm run typecheck && npm run lint && npm test` and make them green.
 **Gotcha.** Native `<dialog>` needs a jsdom polyfill or dialog tests fail. Tests
 here are *tests-after* — they lock the contract we already built.
 
-**Verify.** `npm run typecheck && npm run lint && npm test` all pass. Walk
-`MANUAL_TESTING.md` once on screen (tab through the list, open/confirm the delete
-dialog with the keyboard).
+**Verify.** `npm run typecheck && npm run lint && npm test` all pass — 82 tests
+across 11 files on this branch. Walk `MANUAL_TESTING.md` once on screen (tab
+through the list, open/confirm the delete dialog with the keyboard).
 
 ---
 

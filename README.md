@@ -36,7 +36,8 @@ minitrack/
 ├─ ARCHITECTURE.md    # layered design spec — the structural source of truth
 ├─ spec.md            # behavioral contracts the code-reviewer subagent checks
 ├─ CLAUDE.md          # project context Claude Code reads every session
-├─ .claude/agents/    # a starter code-reviewer subagent
+├─ .claude/agents/    # the read-only frontend-reviewer subagent
+├─ frontend/          # React + Vite + TypeScript SPA over this API
 ├─ requirements.txt
 ├─ .env.example       # MINITRACK_API_KEYS and other config
 └─ seed_data.py       # optional demo data
@@ -70,6 +71,23 @@ python seed_data.py
 | DELETE | `/tasks/{id}` | 🔑 | 204, empty body |
 
 🔑 = requires header `X-API-Key: <one of MINITRACK_API_KEYS>`, else 401.
+
+## Frontend
+A React + Vite + TypeScript SPA lives in [`frontend/`](frontend) and consumes
+this API. There are no accounts — you connect with an API key rather than
+signing in. Start the backend first with `MINITRACK_CORS_ORIGINS` set (see
+`.env.example`), then:
+
+```bash
+cd frontend
+npm install
+npm run dev                                    # http://localhost:5173
+npm run typecheck && npm run lint && npm test
+```
+See [frontend/README.md](frontend/README.md) for the layout and the backend
+contracts it was built against, and
+[frontend/MANUAL_TESTING.md](frontend/MANUAL_TESTING.md) for the keyboard and
+screen-reader passes the suite can't automate.
 
 ## Design history
 This repo originally shipped with four intentional gaps as Lab 3.1 exercises.
