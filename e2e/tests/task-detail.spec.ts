@@ -145,6 +145,6 @@ test.describe('Task detail', () => {
     await page.getByRole('link', { name: '← Back to tasks' }).click();
 
     await expect(page).toHaveURL(/\/tasks$/);
-    await expect(page.getByRole('heading', { name: 'Tasks' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Tasks', exact: true })).toBeVisible();
   });
 });

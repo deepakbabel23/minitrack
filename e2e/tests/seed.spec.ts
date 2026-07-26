@@ -47,6 +47,6 @@ test.describe('MiniTrack', () => {
     // Landing on /connect means the key was rejected or never took: fail here,
     // where the message is about auth, rather than 20 generated tests later.
     await expect(page).toHaveURL(/\/tasks$/);
-    await expect(page.getByRole('heading', { name: 'Tasks' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Tasks', exact: true })).toBeVisible();
   });
 });
