@@ -1,13 +1,16 @@
 # Code Review — 2026-07-05
 
 Full-codebase audit of MiniTrack (correctness vs. [spec.md](spec.md), security, and
-FastAPI/Python conventions), run via the `code-reviewer` subagent plus a dedicated
-security-focused pass. Scope: every file under `app/`, `tests/`, `seed_data.py`,
-`requirements.txt`, `.env.example`, and the two design docs.
+FastAPI/Python conventions), run via a read-only reviewer pass (the `code-reviewer`
+agent built during the Module 3 lab — it is not checked into this repo) plus a
+dedicated security-focused pass. Scope: every file under `app/`, `tests/`,
+`seed_data.py`, `requirements.txt`, `.env.example`, and the two design docs.
 
-**Result:** `pytest -q` passes (31/31). No critical bugs. Two real security gaps in
-secret handling, one auth robustness bug, and two layering/convention violations.
-Findings below are grouped by area; `Status` is updated as fixes land.
+**Result:** `pytest -q` passed at the time of the audit. No critical bugs. Two real
+security gaps in secret handling, one auth robustness bug, and two layering/convention
+violations. Findings below are grouped by area; `Status` is updated as fixes land.
+The suite has grown since; run `pytest --collect-only -q` for the current count
+(34 as of this revision) rather than trusting a number recorded here.
 
 ## Correctness
 
@@ -24,7 +27,7 @@ implemented in the right layer and covered by a test. No blocking issues.
 | # | Severity | Finding | Status |
 |---|---|---|---|
 | S1 | High | `.gitignore` does not exclude `.env`. The moment this directory becomes a git repo, a real `MINITRACK_API_KEYS` value becomes committable/pushable. | **Fixed** — `.env` / `.env.*` added, `.env.example` kept tracked |
-| S2 | Medium | `.env.example` shipped a *working* key (`dev-local-key`), and the local `.env` was a byte-identical copy — the "secret" was public. | **Fixed** — placeholder in `.env.example`; local `.env` rotated to a random key |
+| S2 | Medium | `.env.example` ships a *working* key, and the local `backend/.env` is a byte-identical copy — the "secret" is public. | **Accepted for the lab, not fixed.** Verified 2026-07-26: `cmp .env .env.example` reports identical, both with `MINITRACK_API_KEYS=demo-key-123`. This is deliberate — `frontend/README.md` and `frontend/MANUAL_TESTING.md` instruct readers to connect with `demo-key-123`, and the Playwright config reads the first key straight out of `.env`. `.env` is gitignored (S1), so nothing leaks to the remote. **Anyone deploying this outside localhost must set a real key** — the shipped one is a known public value. |
 | S3 | Medium | No rate limiting / lockout on the `X-API-Key` check (`app/core/security.py`) — unlimited online guessing. | Deferred — requires a new dependency (`slowapi`) or proxy-level config, which conflicts with the repo's stdlib/FastAPI/Pydantic-only constraint ([CLAUDE.md](CLAUDE.md)). Recommended at the reverse-proxy layer if this ever leaves localhost. |
 | S4 | Low | `hmac.compare_digest(key, valid)` raises `TypeError` on a non-ASCII `X-API-Key` header (Starlette decodes headers as latin-1), producing an unhandled **500** instead of the intended **401**. | **Fixed** — compare UTF-8-encoded bytes instead of `str` |
 | S5 | Info | CORS wildcard (`*`) is possible via `MINITRACK_CORS_ORIGINS` config; low risk since `allow_credentials` is unset and the custom header forces a preflight. | Open — documentation-only fix, not code |

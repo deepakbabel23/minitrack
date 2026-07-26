@@ -9,7 +9,8 @@ Run the project's test suite and give a clear pass/fail summary.
 
 ## Steps
 
-1. Run `pytest -q` from the project root.
+1. Run `pytest -q` from `backend/` (the venv is `backend/.venv`). Running it from
+   the repo root collects nothing useful — `testpaths` is rootdir-relative.
 2. If everything passes, report the number of tests that passed.
 3. If anything fails:
    - List each failing test by name.
@@ -21,5 +22,10 @@ Run the project's test suite and give a clear pass/fail summary.
 ## Notes
 
 - Per `CLAUDE.md`, `pytest -q` must pass before any change is considered done.
-- The `tests/` directory may not exist yet — if there are no tests, say so
-  rather than reporting a false pass.
+- `tests/` currently holds **34** tests (`tests/unit/`, `tests/integration/`,
+  plus `tests/test_delete_task.py` and `tests/test_seed_data.py`). If the count
+  comes back lower, collection failed somewhere — investigate rather than
+  reporting a pass. Confirm with `pytest --collect-only -q`.
+- This skill covers the Python suite only. The frontend has its own
+  (`cd frontend && npm test`, 82 tests) and there is a Playwright end-to-end
+  suite in `e2e/` — neither runs under pytest.

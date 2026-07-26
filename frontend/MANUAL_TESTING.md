@@ -19,19 +19,19 @@ This guide covers what that suite deliberately **cannot** reach:
 
 ## Setup
 
-Two terminals, from `minitrack_backend/`:
+Two terminals, from the repo root:
 
 ```bash
-# 1. Backend — needs .env with MINITRACK_API_KEYS and MINITRACK_CORS_ORIGINS
-source .venv/bin/activate
+# 1. Backend — needs backend/.env with MINITRACK_API_KEYS and MINITRACK_CORS_ORIGINS
+cd backend && source .venv/bin/activate
 uvicorn app.main:app --reload --env-file .env
 
 # 2. Frontend
 cd frontend && npm run dev
 ```
 
-Then `python seed_data.py` if the list is empty. The demo key is whatever you set
-in `MINITRACK_API_KEYS` (the runbook uses `demo-key-123`).
+Then `python seed_data.py` from `backend/` if the list is empty. The demo key is whatever you set
+in `MINITRACK_API_KEYS` (`backend/.env.example` ships `demo-key-123`).
 
 Open <http://localhost:5173>. **Use a real browser, not a headless one.**
 
@@ -66,7 +66,7 @@ and links.
 | Tab into a task row | Title link → View → Edit → Complete → Delete, in that visual order |
 | Press `Enter` on **Load more** (needs >20 tasks) | Page appends; focus remains on the button so you can press it again |
 
-> To get past 20 tasks: run `python seed_data.py` a few times, or create tasks
+> To get past 20 tasks: run `python seed_data.py` from `backend/` a few times, or create tasks
 > until the button appears. Reset with `rm minitrack.db` and re-seed.
 
 ### 1.3 Confirm-and-delete by keyboard — the important one

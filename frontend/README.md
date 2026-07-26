@@ -11,7 +11,8 @@ by default, and the `X-API-Key` header makes every request preflighted, so
 without it the very first call fails:
 
 ```bash
-# from the repo root, in its own terminal
+# from backend/, in its own terminal
+cd ../backend
 source .venv/bin/activate
 cp .env.example .env          # MINITRACK_API_KEYS + MINITRACK_CORS_ORIGINS
 python seed_data.py

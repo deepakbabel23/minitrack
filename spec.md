@@ -1,14 +1,16 @@
 # SPEC
 
-Source-of-truth specification for MiniTrack tasks. The `code-reviewer` subagent
-checks changes against this file.
+Source-of-truth specification for MiniTrack tasks — the behavioral contracts a
+*Review*-step pass checks changes against. (The `code-reviewer` agent used for
+that pass is built during the Module 3 lab; it is not checked into this repo.
+The one agent that is, `frontend-reviewer`, covers `frontend/`.)
 
 ## Seed data
 
 **Goal:** Load demo tasks into `minitrack.db` so `GET /tasks` is non-empty for
 demos and labs.
 
-**Source of truth:** the `DEMO` list in [seed_data.py](seed_data.py) — 4 tasks:
+**Source of truth:** the `DEMO` list in [seed_data.py](backend/seed_data.py) — 4 tasks:
 
 | Title | Priority |
 |---|---|
@@ -19,13 +21,13 @@ demos and labs.
 
 **How to seed:**
 ```bash
-source .venv/bin/activate
+cd backend && source .venv/bin/activate
 python seed_data.py
 ```
 Seeding **appends** (no dedup); re-running adds another copy of the 4 tasks.
 
 **Evaluation criteria:** After seeding, for every `(title, priority)` pair in
-`DEMO`, at least one matching task exists in the DB (via `db.get_all_tasks()`)
+`DEMO`, at least one matching task exists in the DB (via `TaskRepository.list_tasks`)
 with `completed == False`. The criterion is presence-based, not an exact row
 count, so it holds even when the DB already contained other rows.
 
@@ -40,7 +42,7 @@ Verified by `tests/test_seed_data.py`.
   follow-up `GET /tasks/{id}` returns **404**.
 - Unknown id → **404** (`{"detail": "Task not found"}`).
 
-**Data layer:** `db.delete_task(task_id)` returns `True` if a row was deleted,
+**Data layer:** `TaskRepository.delete_task(task_id)` returns `True` if a row was deleted,
 `False` if the id didn't exist — no HTTP concerns in the DB layer.
 
 Verified by `tests/test_delete_task.py`.

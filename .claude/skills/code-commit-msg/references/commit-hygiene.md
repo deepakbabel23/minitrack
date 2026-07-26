@@ -49,7 +49,7 @@ This repo follows the **Plan → Implement → Review → Verify (PIRV)** loop
 (see `CLAUDE.md`). A commit is the Verify step made permanent:
 
 - Any behavior change ships with a test in the same commit.
-- `pytest -q` passes before the commit is made.
+- `pytest -q` passes (from `backend/`) before the commit is made.
 - If the change touches a documented contract, `spec.md` is updated in the
   same commit, not a follow-up.
 

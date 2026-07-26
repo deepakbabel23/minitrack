@@ -8,8 +8,8 @@ production-shaped backend by applying the Single Responsibility Principle (SRP).
 > now doubles as the structural reference for how the layers are supposed to work. See
 > [CODE_REVIEW.md](CODE_REVIEW.md) for the post-migration audit.
 >
-> **Companion doc:** [spec.md](spec.md) is the *behavioral* source-of-truth that the
-> `code-reviewer` subagent checks (per-feature contracts + which test verifies them). This
+> **Companion doc:** [spec.md](spec.md) is the *behavioral* source-of-truth a
+> *Review*-step pass checks against (per-feature contracts + which test verifies them). This
 > document is the *structural* blueprint (layers, module contracts, dependency rules,
 > migration order). As new behavior lands (validation, the `completed` filter, auth), its
 > contract is appended to `spec.md`; this file stays the architecture map.
@@ -59,13 +59,16 @@ These are hard boundaries. Every recommendation in this document lives inside th
 
 - **Lab-compatible stack only.** Standard-library `sqlite3` — **no ORM, no Docker, no external
   services, no new runtime dependencies.** The allowed set is exactly what
-  [requirements.txt](requirements.txt) already pins: `fastapi==0.115.6`,
+  [requirements.txt](backend/requirements.txt) already pins: `fastapi==0.115.6`,
   `uvicorn[standard]==0.34.0`, `pydantic==2.10.4`, `httpx==0.28.1`, `pytest==8.3.4`. Python
   **3.12**.
 - **Auth is a header API key only.** `X-API-Key`, checked by a FastAPI dependency against a
   configured value. No user accounts, no password hashing, no JWT, no OAuth, no login flow.
-- **Documentation-only deliverable.** This spec changes no application code. It is the
-  blueprint; the refactor happens later, step by step.
+- **Originally a documentation-only deliverable.** This document was written as the
+  blueprint *before* the refactor, which then landed step by step (§13). It is kept in
+  that original voice — where the text below says a gap is "open" or a convention is
+  "recommended", read it as "as of the blueprint". The refactor is complete; the code
+  is the current truth.
 - **Preserve observable behavior.** The refactor must keep [spec.md](spec.md)'s contracts and
   the existing tests green (§12). Same status codes, same `{"detail": "Task not found"}`.
 - **Heavier "production" machinery is out of scope** and appears only in §15 (Postgres,
@@ -106,6 +109,11 @@ that FastAPI serializes. Domain errors flow *up* as exceptions and are translate
 exactly once, at the edge. `schemas/` and `core/` are the shared vocabulary every layer is
 allowed to speak.
 
+> The ASCII diagram above is the quick reference. The same picture with real import edges,
+> the DI chain and the deprecated `app/db.py` facade drawn in is
+> [docs/diagrams/architecture.md](docs/diagrams/architecture.md) — see *Backend components*
+> for this layering and *System architecture* for how the SPA and SQLite sit around it.
+
 ---
 
 ## 4. Module Table
@@ -140,7 +148,7 @@ app/
 
 | Module | Responsibility | Key symbols | Imports from → imported by |
 |---|---|---|---|
-| `schemas/task.py` | Request/response contracts **and the validation now missing**. | `Priority(str, Enum)`, `TaskIn`, `Task`, `TaskListQuery` | stdlib + pydantic → routes, service (types) |
+| `schemas/task.py` | Request/response contracts **and all input validation** (the gap this closed). | `Priority(str, Enum)`, `TaskIn`, `Task`, `TaskListQuery` | stdlib + pydantic → routes, service (types) |
 | `schemas/errors.py` | Uniform error body. | `ErrorResponse(detail, request_id)` | pydantic → core/errors, routes (`responses=`) |
 | `data/database.py` | Connection + self-healing schema. | `_SCHEMA`, `connect()`, `get_connection()`, `init_schema()` | `sqlite3` → task_repository, db facade, lifespan |
 | `data/task_repository.py` | **Only** module issuing task SQL; dict/None/bool boundary. | `TaskRepository` (methods 1:1 with today's `db.*`), `_row_to_dict` | data/database → api/deps, db facade, service tests |
@@ -172,6 +180,12 @@ in that layer's vocabulary.
   HTTP error — that boundary is inherited verbatim from today's `db.py` and from
   [CLAUDE.md](CLAUDE.md).
 
+> Traces A–C below are the backend half in ASCII. Full-stack sequence diagrams for these
+> and five more flows — including the browser and React layers — are in
+> [docs/diagrams/sequences.md](docs/diagrams/sequences.md); the middleware ordering is
+> drawn out in *Request pipeline* in
+> [docs/diagrams/architecture.md](docs/diagrams/architecture.md).
+
 ### Trace A — `POST /tasks` (happy path)
 
 ```
@@ -192,7 +206,7 @@ bounds-checked by Pydantic → `service.list_tasks(query)` → `repo.list_tasks(
 emits `SELECT * FROM tasks WHERE completed = ? ORDER BY id LIMIT ? OFFSET ?` with `1` →
 `list[dict]` → `response_model=list[Task]` → `200`.
 
-**Where the two open gaps are fixed:**
+**Where the two remaining gaps were closed:**
 - **Validation (gap #2)** lives in `schemas/task.py` — a blank title never reaches the
   service.
 - **The `completed` filter (gap #4)** lives in `repo.list_tasks` SQL (parameterized,
@@ -204,7 +218,7 @@ emits `SELECT * FROM tasks WHERE completed = ? ORDER BY id LIMIT ? OFFSET ?` wit
 in `core/errors.py` maps it to `404 {"detail": "Task not found"}`. The router contains **zero**
 error logic.
 
-### Error-handling convention (recommended)
+### Error-handling convention (implemented)
 
 **Repository returns sentinels → service raises domain exceptions → one central handler maps
 to HTTP.**
@@ -241,6 +255,10 @@ def register_exception_handlers(app: FastAPI) -> None:
 ---
 
 ## 6. Data Model & Persistence
+
+> An ER view of this table, annotated with the three things it is easiest to assume into
+> existence — an index, a migration system, and a `CHECK` on `priority`, none of which
+> exist — is in [docs/diagrams/flows.md §4](docs/diagrams/flows.md#4-data-model).
 
 **Schema (unchanged from today — carried verbatim into `data/database.py`):**
 
@@ -507,10 +525,10 @@ error; unknown priority → error; valid input passes; `priority` defaults to `m
 with empty body).
 
 **The two existing tests:**
-- [tests/test_seed_data.py](tests/test_seed_data.py) — **unchanged.** It drives `db.*` directly
+- [tests/test_seed_data.py](backend/tests/test_seed_data.py) — **unchanged.** It drives `db.*` directly
   (facade preserved: `DB_PATH`, `init_db`, `create_task`, `get_all_tasks`) and never touches
   HTTP or auth.
-- [tests/test_delete_task.py](tests/test_delete_task.py) — **one-fixture swap.** Because `/tasks`
+- [tests/test_delete_task.py](backend/tests/test_delete_task.py) — **one-fixture swap.** Because `/tasks`
   is now key-protected, its `client` fixture must send `X-API-Key`; the request/assertion bodies
   are otherwise identical. This is the honest, production-shaped consequence of adding auth —
   the spec calls it out explicitly rather than hiding it behind a fail-open default.
