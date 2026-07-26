@@ -1,0 +1,19 @@
+{
+  "name": "minitrack-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MiniTrack end-to-end tests + Playwright Planner/Generator/Healer agents",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "agents:init": "playwright init-agents --loop=claude"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

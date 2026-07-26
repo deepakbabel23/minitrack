@@ -1,0 +1,16 @@
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/.auth/
+.env
+.env.local
+.DS_Store
+
+# Commit these — they are generated but version-pinned, and teammates
+# should get the same agents without re-running init:
+#   .claude/agents/
+#   .mcp.json
+#   tests/seed.spec.ts
+#   specs/
