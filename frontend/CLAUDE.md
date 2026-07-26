@@ -27,14 +27,14 @@ their declared floor; quote the **resolved** column.
 
 | Package | Declared | Resolved |
 |---|---|---|
-| react / react-dom | `^19.2.7` | **19.2.7** |
+| react / react-dom | `^19.2.7` | **19.2.8** ← drifted |
 | react-router-dom | `^7.18.1` | **7.18.1** |
 | vite | `^8.1.1` | **8.1.5** ← drifted |
-| @vitejs/plugin-react | `^6.0.3` | **6.0.3** |
+| @vitejs/plugin-react | `^6.0.3` | **6.0.4** ← drifted |
 | typescript | `~6.0.2` | **6.0.3** ← drifted |
 | vitest | `^4.1.10` | **4.1.10** |
 | jsdom | `^29.1.1` | **29.1.1** |
-| oxlint | `^1.71.0` | **1.74.0** ← drifted |
+| oxlint | `^1.71.0` | **1.75.0** ← drifted |
 | @testing-library/react | `^16.3.2` | **16.3.2** |
 | @testing-library/jest-dom | `^6.9.1` | **6.9.1** |
 | @testing-library/user-event | `^14.6.1` | **14.6.1** |
