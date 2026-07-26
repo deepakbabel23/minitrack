@@ -157,11 +157,20 @@ The key is a credential, and this app is careful with it:
 
 ## Styling
 
-`tokens.css`, `typography.css`, `components.css` and `index.css` are copied
-**byte-for-byte** from the repo root's `src/styles/` and are never edited here —
-re-copy them if the design system changes. Style components by applying the
-global classes those files already define (`.btn`, `.form-field`, `.badge`,
-`.task-card`, `.dialog`, `.text-*`).
+[src/styles/](src/styles) is the **single source** for the design system. It used
+to be a byte-for-byte copy of a `src/styles/` at the repo root, kept in sync by
+hand; that duplicate is gone, so edit these files directly.
+
+`tokens.css`, `typography.css`, `components.css` and `index.css` are *derived*
+from [DESIGN.md](../DESIGN.md) — the spec that names every colour, type step and
+spacing value. Change a token there first and re-derive rather than hand-tuning a
+hex value here. Style components by applying the global classes these files
+already define (`.btn`, `.form-field`, `.badge`, `.task-card`, `.dialog`,
+`.text-*`).
+
+`preview.html` is a standalone showcase of those classes — open it directly in a
+browser, no build step. It is the fastest way to see what already exists before
+writing a new rule.
 
 `app-shell.css` is the one stylesheet this app authors: the page shell plus the
 few things the delivered system omits (`<select>`, the segmented filter, flash,
@@ -197,8 +206,11 @@ Vitest **4.1.10** + Testing Library + jsdom **29.1.1**. **There is no
 `vitest.config.*`** — the config is inlined under `test:` in
 [vite.config.ts](vite.config.ts): `environment: "jsdom"`, `globals: true`,
 `setupFiles: ["./src/test/setupTests.ts"]`, `restoreMocks: true`, `css: false`.
-Tests live next to their subject as `*.test.ts(x)` — currently **11 files, 82
-tests**. Verify that count with `npm test`; don't quote it from a doc.
+Tests live next to their subject as `*.test.ts(x)` — currently **12 files, 86
+tests**, including [src/test/architecture.test.ts](src/test/architecture.test.ts),
+which fails the build if `fetch` escapes `client.ts`, if `src/api/` imports React
+or the auth store, or if the e2e suite's sessionStorage key drifts from the app's.
+Verify the count with `npm test`; don't quote it from a doc.
 
 - `fetch` is stubbed via [src/test/fetchMock.ts](src/test/fetchMock.ts) — no test
   hits a real server.

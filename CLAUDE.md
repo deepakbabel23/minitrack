@@ -10,8 +10,8 @@ The repo is three peer modules, each with its own dependencies and its own test 
 
 | Module | Stack | Suite |
 |---|---|---|
-| [backend/](backend/) | Python · FastAPI · stdlib `sqlite3` | `cd backend && pytest -q` — 34 tests |
-| [frontend/](frontend/) | React · Vite · TypeScript | `cd frontend && npm test` — 82 tests |
+| [backend/](backend/) | Python · FastAPI · stdlib `sqlite3` | `cd backend && pytest -q` — 54 tests |
+| [frontend/](frontend/) | React · Vite · TypeScript | `cd frontend && npm test` — 86 tests |
 | [e2e/](e2e/) | Playwright | `cd e2e && npx playwright test` — 16 tests |
 
 **This file covers `backend/`, the database, and repo-wide tooling.** When working
@@ -100,7 +100,7 @@ uvicorn app.main:app --reload --env-file .env   # run; docs at http://127.0.0.1:
 python seed_data.py                             # optional: load demo tasks
 pytest -q                                       # run the full suite (unit + integration)
 pytest -q tests/test_x.py::test_name            # run a single test
-pytest --collect-only -q | tail -1              # authoritative test count (currently 34)
+pytest --collect-only -q | tail -1              # authoritative test count (currently 54)
 ```
 
 `pyproject.toml` sets `testpaths = ["tests"]`, which is rootdir-relative — running
@@ -211,12 +211,14 @@ Verified constraints. Each one is something that has been or could easily be inv
 - Known gap — do **not** "fix" it by asserting otherwise in docs: only `DELETE` declares `404` in its OpenAPI `responses`, though GET, PATCH and `/complete` all return 404 at runtime via the `TaskNotFound` handler.
 
 **Facts to verify rather than quote**
-- The suite collects **34** tests. Confirm with `pytest --collect-only -q`; do not copy a count out of a doc.
+- The suite collects **54** tests. Confirm with `pytest --collect-only -q`; do not copy a count out of a doc.
 - `code-reviewer` and `scaffold-router` are **lab exercises you build during Module 3**, not files in this repo. Never cite them as existing.
 
 ## Testing
 
-pytest config is two lines in [pyproject.toml](backend/pyproject.toml) (`testpaths = ["tests"]`) — no markers, no `addopts`, no asyncio mode. **34 tests**: `tests/unit/` (schemas, service against an in-memory `FakeTaskRepository`), `tests/integration/` (auth, health, full `/tasks` CRUD via `TestClient`), plus `tests/test_delete_task.py` and `tests/test_seed_data.py`.
+pytest config is two lines in [pyproject.toml](backend/pyproject.toml) (`testpaths = ["tests"]`) — no markers, no `addopts`, no asyncio mode. **54 tests**: `tests/unit/` (schemas, service against an in-memory `FakeTaskRepository`), `tests/integration/` (auth, health, full `/tasks` CRUD via `TestClient`), `tests/test_architecture.py` (the layering invariants below), plus `tests/test_delete_task.py` and `tests/test_seed_data.py`.
+
+**The guardrails above are enforced, not just documented.** [tests/test_architecture.py](backend/tests/test_architecture.py) fails the build if a layer imports upward or sideways, if `app/services/` transitively reaches FastAPI, if `sqlite3` or `.execute(` appears outside `app/data/`, if `app/core/exceptions.py` grows an import, or if building the app pulls in the deprecated `app/db.py`. Adding a rule to this file is cheaper than re-litigating it in review.
 
 `tests/conftest.py` gives every test an isolated database and a pre-authenticated client via the autouse `_env` fixture (`MINITRACK_DB_PATH` → `tmp_path`, `MINITRACK_API_KEYS` → `test-api-key`).
 

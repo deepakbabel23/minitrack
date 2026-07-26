@@ -36,7 +36,7 @@ Three peer modules, each with its own dependencies and its own test suite.
 
 ```
 minitrack/
-├─ backend/           # FastAPI + sqlite3          pytest      34 tests
+├─ backend/           # FastAPI + sqlite3          pytest      54 tests
 │  ├─ app/
 │  │  ├─ main.py       # create_app() factory + lifespan (composition root)
 │  │  ├─ db.py         # deprecated facade — kept for seed_data.py + legacy tests
@@ -49,16 +49,15 @@ minitrack/
 │  ├─ requirements.txt
 │  ├─ .env.example     # MINITRACK_API_KEYS and other config
 │  └─ seed_data.py     # optional demo data
-├─ frontend/          # React + Vite + TypeScript   vitest      82 tests
+├─ frontend/          # React + Vite + TypeScript   vitest      86 tests
 ├─ e2e/               # Playwright over both halves playwright  16 tests
 ├─ docs/diagrams/     # architecture, component and sequence diagrams
 ├─ .claude/agents/    # frontend-reviewer + the three Playwright agents
 ├─ ARCHITECTURE.md    # layered design spec — the structural source of truth
 ├─ spec.md            # behavioral contracts a review pass checks against
 ├─ CLAUDE.md          # project context Claude Code reads every session
-├─ DESIGN.md          # the "MiniTrack Precision" design system
-├─ CODE_REVIEW.md     # findings from the full-codebase audit
-└─ src/styles/        # design-system CSS; frontend/ copies it byte-for-byte
+├─ DESIGN.md          # the "MiniTrack Precision" design system (the spec)
+└─ CODE_REVIEW.md     # findings from the full-codebase audit
 ```
 
 ## Run it
@@ -125,8 +124,8 @@ One suite per module. CI runs all three —
 [.github/workflows/verify.yml](.github/workflows/verify.yml).
 
 ```bash
-cd backend  && pytest -q                                     # 34
-cd frontend && npm run typecheck && npm run lint && npm test # 82
+cd backend  && pytest -q                                     # 54
+cd frontend && npm run typecheck && npm run lint && npm test # 86
 cd e2e      && npx playwright test                           # 16
 ```
 

@@ -48,10 +48,12 @@ npm run typecheck && npm run lint && npm test
 
 ## Styling
 
-`tokens.css`, `typography.css`, `components.css` and `index.css` are copied
-**byte-for-byte** from the repo root's `src/styles/` and are never edited here —
-re-copy them if the design system changes. Components are styled by applying the
-global classes those files already define (`.btn`, `.form-field`, `.badge`,
+[`src/styles/`](src/styles) is the single source for the design system — edit it
+directly. (It was previously duplicated at the repo root and synced by hand; that
+copy is gone.) `tokens.css`, `typography.css`, `components.css` and `index.css`
+are derived from [DESIGN.md](../DESIGN.md), so change a token there and re-derive
+rather than hand-tuning values. Components are styled by applying the global
+classes those files already define (`.btn`, `.form-field`, `.badge`,
 `.task-card`, `.dialog`, `.text-*`).
 
 `app-shell.css` is the one stylesheet this app authors. The delivered system

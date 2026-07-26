@@ -46,7 +46,12 @@ class TaskRepository:
                 (title, description, priority),
             )
             new_id = cur.lastrowid
-        return self.get_task(new_id)
+        created = self.get_task(new_id)
+        # get_task is Optional[dict], but a row we just inserted always exists.
+        # Assert rather than cast so a genuinely missing row fails here, next to
+        # the insert, instead of as a None further up the call chain.
+        assert created is not None, f"row {new_id} vanished immediately after insert"
+        return created
 
     def update_task(
         self, task_id: int, title: str, description: Optional[str], priority: str

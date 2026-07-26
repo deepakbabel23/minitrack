@@ -10,7 +10,7 @@ dedicated security-focused pass. Scope: every file under `app/`, `tests/`,
 security gaps in secret handling, one auth robustness bug, and two layering/convention
 violations. Findings below are grouped by area; `Status` is updated as fixes land.
 The suite has grown since; run `pytest --collect-only -q` for the current count
-(34 as of this revision) rather than trusting a number recorded here.
+(54 as of this revision) rather than trusting a number recorded here.
 
 ## Correctness
 
@@ -19,7 +19,7 @@ implemented in the right layer and covered by a test. No blocking issues.
 
 | # | Note | Status |
 |---|---|---|
-| C1 | `TaskRepository.create_task` is annotated `-> dict` but its return path (`get_task`) is typed `Optional[dict]`. Harmless at runtime — a just-inserted row always exists — but the annotation is inaccurate. | Open (low priority, not part of this fix batch) |
+| C1 | `TaskRepository.create_task` is annotated `-> dict` but its return path (`get_task`) is typed `Optional[dict]`. Harmless at runtime — a just-inserted row always exists — but the annotation is inaccurate. | **Fixed** — asserts the row is present before returning, so a genuinely missing row fails next to the insert rather than as a `None` further up. |
 | C2 | `TaskRepository`'s check-then-mutate is non-atomic across separate connections (a concurrent delete between the existence check and the mutation could race). Explicitly accepted by [ARCHITECTURE.md](ARCHITECTURE.md) §6 (connection-per-op) for a single-user lab. | Accepted, no action |
 
 ## Security
@@ -46,8 +46,14 @@ known reachable CVEs.
 |---|---|---|
 | V1 | `app/services/task_service.py` is documented as framework-agnostic ("no FastAPI import") but transitively imports FastAPI via `from app.core.errors import TaskNotFound` (`core/errors.py` imports `fastapi`). | **Fixed** — `DomainError`/`TaskNotFound` moved to a new framework-free `app/core/exceptions.py`; `core/errors.py` now imports from there for the HTTP handlers. |
 | V2 | `GET /tasks` validated `limit`/`offset` twice: once via `Query(50, ge=1, le=200)` in the route, again via `TaskListQuery`'s `Field(...)` bounds, which could never actually fire. Latent trap: removing the route-level `Query()` constraint in favor of `TaskListQuery` alone would raise `pydantic.ValidationError`, uncaught by the app's `RequestValidationError` handler → **500 instead of 422**. | **Fixed** — `TaskListQuery` is now used as a FastAPI query-param model (`Annotated[TaskListQuery, Query()]`), the single source of validation; the duplicate `Query()` bounds in the route were removed. |
-| V3 | `app/data/database.py`'s `init_schema` re-runs the same DDL that `connect()` already executes. Idempotent and harmless, but redundant. | Open (low priority, not part of this fix batch) |
+| V3 | `app/data/database.py`'s `init_schema` re-runs the same DDL that `connect()` already executes. Idempotent and harmless, but redundant. | **Fixed** — the duplicate `execute` is gone; `init_schema` now just opens a connection, which is what creates the schema. Kept as a named entry point so `main.py` reads clearly and `seed_data.py` has something to call. |
 
 ---
-*Superseded findings will be removed in a future pass once S3/S5 have owners; C1/C2/V3
-are tracked here so they aren't lost, not because they block anything.*
+*S3 (rate limiting) and S5 (CORS wildcard documentation) remain open and need owners.
+C2 (non-atomic check-then-mutate) is accepted by design for a single-user lab. Every
+other finding above is closed.*
+
+The layering rules this audit checked by hand — SQL confined to `app/data/`, the service
+layer framework-agnostic, imports pointing downward, `app/db.py` off the request path —
+are now enforced by [backend/tests/test_architecture.py](backend/tests/test_architecture.py)
+rather than re-verified by reading.

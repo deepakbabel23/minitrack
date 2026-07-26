@@ -54,9 +54,9 @@ SYSTEM = Component(
             "SQLite 3.53.3 · 1 table · 0 indexes"),
 
         Box("vitest", "Vitest 4.1 + jsdom", 105, 845, 320, 80, "good",
-            "82 tests over frontend/src"),
+            "86 tests over frontend/src"),
         Box("pytest", "pytest 8.3 + TestClient", 455, 845, 320, 80, "good",
-            "34 tests over backend/"),
+            "54 tests over backend/"),
         Box("playwright", "Playwright 1.62", 805, 845, 320, 80, "good",
             "e2e/ — 16 tests, boots both halves"),
         Box("envcfg", "MINITRACK_* env", 1155, 845, 300, 80, "core",

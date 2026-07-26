@@ -22,10 +22,14 @@ Run the project's test suite and give a clear pass/fail summary.
 ## Notes
 
 - Per `CLAUDE.md`, `pytest -q` must pass before any change is considered done.
-- `tests/` currently holds **34** tests (`tests/unit/`, `tests/integration/`,
-  plus `tests/test_delete_task.py` and `tests/test_seed_data.py`). If the count
-  comes back lower, collection failed somewhere — investigate rather than
-  reporting a pass. Confirm with `pytest --collect-only -q`.
+- `tests/` currently holds **54** tests (`tests/unit/`, `tests/integration/`,
+  `tests/test_architecture.py`, plus `tests/test_delete_task.py` and
+  `tests/test_seed_data.py`). If the count comes back lower, collection failed
+  somewhere — investigate rather than reporting a pass. Confirm with
+  `pytest --collect-only -q`.
+- A failure in `test_architecture.py` is a layering violation, not a broken
+  test: some module started importing upward, or SQL escaped `app/data/`. Read
+  the assertion message — it names the offending file and what it may import.
 - This skill covers the Python suite only. The frontend has its own
-  (`cd frontend && npm test`, 82 tests) and there is a Playwright end-to-end
+  (`cd frontend && npm test`, 86 tests) and there is a Playwright end-to-end
   suite in `e2e/` — neither runs under pytest.

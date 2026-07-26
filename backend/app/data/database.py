@@ -44,5 +44,12 @@ def get_connection(db_path: Path) -> Iterator[sqlite3.Connection]:
 
 
 def init_schema(db_path: Path) -> None:
-    with get_connection(db_path) as conn:
-        conn.execute(_SCHEMA)
+    """Create the schema up front, at startup.
+
+    connect() already runs _SCHEMA on every connection, so this is really just
+    an explicit, named entry point -- opening the connection is what does the
+    work. Kept because "the lifespan initialises the database" is worth being
+    able to read in main.py, and because seed_data.py calls it directly.
+    """
+    with get_connection(db_path):
+        pass

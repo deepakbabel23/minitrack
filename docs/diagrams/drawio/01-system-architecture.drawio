@@ -37,9 +37,9 @@ the only sqlite3.connect()" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;s
         <mxCell id="n_db" value="backend/minitrack.db
 SQLite 3.53.3 · 1 table · 0 indexes" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1560" y="560" width="285" height="110" as="geometry"/></mxCell>
         <mxCell id="n_vitest" value="Vitest 4.1 + jsdom
-82 tests over frontend/src" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="105" y="845" width="320" height="80" as="geometry"/></mxCell>
+86 tests over frontend/src" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="105" y="845" width="320" height="80" as="geometry"/></mxCell>
         <mxCell id="n_pytest" value="pytest 8.3 + TestClient
-34 tests over backend/" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="455" y="845" width="320" height="80" as="geometry"/></mxCell>
+54 tests over backend/" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="455" y="845" width="320" height="80" as="geometry"/></mxCell>
         <mxCell id="n_playwright" value="Playwright 1.62
 e2e/ — 16 tests, boots both halves" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="805" y="845" width="320" height="80" as="geometry"/></mxCell>
         <mxCell id="n_envcfg" value="MINITRACK_* env
