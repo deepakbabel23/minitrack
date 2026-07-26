@@ -1,0 +1,65 @@
+<mxfile host="minitrack-build-diagrams" type="device">
+  <diagram id="01-system-architecture" name="01-system-architecture">
+    <mxGraphModel dx="1920" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="MiniTrack — system architecture" style="text;html=1;align=left;verticalAlign=middle;fontSize=40;fontStyle=1;fontColor=#172033;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="80" y="40" width="1600" height="56" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="React SPA over a layered FastAPI service on standard-library sqlite3" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontColor=#475569;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="80" y="96" width="1600" height="34" as="geometry"/></mxCell>
+        <mxCell id="grp0" value="Client — frontend/" style="rounded=1;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=17;fontStyle=1;fillColor=#EEF2FF;opacity=35;strokeColor=#4F46E5;fontColor=#312E81;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="70" y="175" width="400" height="460" as="geometry"/></mxCell>
+        <mxCell id="grp1" value="ASGI middleware" style="rounded=1;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=17;fontStyle=1;fillColor=#CCFBF1;opacity=35;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="545" y="175" width="330" height="460" as="geometry"/></mxCell>
+        <mxCell id="grp2" value="Backend — backend/app/" style="rounded=1;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=17;fontStyle=1;fillColor=#CCFBF1;opacity=35;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="940" y="175" width="545" height="570" as="geometry"/></mxCell>
+        <mxCell id="grp3" value="Verification surfaces" style="rounded=1;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=17;fontStyle=1;fillColor=#DCFCE7;opacity=35;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="70" y="790" width="1415" height="165" as="geometry"/></mxCell>
+        <mxCell id="n_browser" value="Browser
+sessionStorage · fetch" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#475569;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="105" y="235" width="330" height="85" as="geometry"/></mxCell>
+        <mxCell id="n_spa" value="React SPA
+React 19.2 · Vite 8.1 · TypeScript 6.0" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#EEF2FF;strokeColor=#4F46E5;fontColor=#312E81;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="105" y="355" width="330" height="90" as="geometry"/></mxCell>
+        <mxCell id="n_client" value="src/api/client.ts
+the only fetch() in the app" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#EEF2FF;strokeColor=#4F46E5;fontColor=#312E81;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="105" y="480" width="330" height="85" as="geometry"/></mxCell>
+        <mxCell id="n_cors" value="CORSMiddleware
+MINITRACK_CORS_ORIGINS" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="570" y="235" width="280" height="85" as="geometry"/></mxCell>
+        <mxCell id="n_reqctx" value="RequestContextMiddleware
+uuid4 → X-Request-ID" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="570" y="355" width="280" height="90" as="geometry"/></mxCell>
+        <mxCell id="n_excmw" value="ExceptionMiddleware
+app/core/errors.py" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="570" y="480" width="280" height="85" as="geometry"/></mxCell>
+        <mxCell id="n_routes" value="app/api/routes/
+health.py · tasks.py" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="970" y="235" width="485" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_deps" value="app/api/deps.py
+DI wiring" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="970" y="340" width="235" height="75" as="geometry"/></mxCell>
+        <mxCell id="n_security" value="app/core/security.py
+X-API-Key" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1220" y="340" width="235" height="75" as="geometry"/></mxCell>
+        <mxCell id="n_service" value="app/services/task_service.py
+raises TaskNotFound · no FastAPI import" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F3E8FF;strokeColor=#7C3AED;fontColor=#5B21B6;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="970" y="440" width="485" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_repo" value="app/data/task_repository.py
+the only task SQL" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="970" y="545" width="485" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_database" value="app/data/database.py
+the only sqlite3.connect()" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="970" y="650" width="485" height="75" as="geometry"/></mxCell>
+        <mxCell id="n_db" value="backend/minitrack.db
+SQLite 3.53.3 · 1 table · 0 indexes" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1560" y="560" width="285" height="110" as="geometry"/></mxCell>
+        <mxCell id="n_vitest" value="Vitest 4.1 + jsdom
+82 tests over frontend/src" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="105" y="845" width="320" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_pytest" value="pytest 8.3 + TestClient
+34 tests over backend/" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="455" y="845" width="320" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_playwright" value="Playwright 1.62
+e2e/ — 16 tests, boots both halves" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#166534;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="805" y="845" width="320" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_envcfg" value="MINITRACK_* env
+backend/.env → uvicorn --env-file" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1155" y="845" width="300" height="80" as="geometry"/></mxCell>
+        <mxCell id="e0" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#4F46E5;fontColor=#312E81;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_browser" target="n_spa"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e1" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#4F46E5;fontColor=#312E81;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_spa" target="n_client"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="HTTP + X-API-Key" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#0D9488;fontColor=#115E59;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_client" target="n_cors"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#0D9488;fontColor=#115E59;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_cors" target="n_reqctx"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#0D9488;fontColor=#115E59;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_reqctx" target="n_excmw"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#0D9488;fontColor=#115E59;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_excmw" target="n_routes"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=1;strokeColor=#94A3B8;fontColor=#1E293B;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_security" target="n_routes"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" value="constructs" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=1;strokeColor=#94A3B8;fontColor=#1E293B;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_deps" target="n_service"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#7C3AED;fontColor=#5B21B6;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_routes" target="n_service"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#B45309;fontColor=#92400E;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_service" target="n_repo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#B45309;fontColor=#92400E;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_repo" target="n_database"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#B45309;fontColor=#92400E;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_database" target="n_db"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="note0" value="Every /tasks call from the browser is preflighted, because X-API-Key is a non-simple header. With MINITRACK_CORS_ORIGINS empty, CORSMiddleware is not installed at all and the SPA cannot reach the API." style="shape=note;whiteSpace=wrap;html=1;size=14;dashed=1;align=left;spacingLeft=6;fontSize=14;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1500" y="190" width="350" height="175" as="geometry"/></mxCell>
+        <mxCell id="note1" value="No ORM, no migrations, no connection pool. The schema is CREATE TABLE IF NOT EXISTS, re-run on every connect()." style="shape=note;whiteSpace=wrap;html=1;size=14;dashed=1;align=left;spacingLeft=6;fontSize=14;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1500" y="700" width="350" height="120" as="geometry"/></mxCell>
+        <mxCell id="footnote" value="Reading the diagram: three peer modules — backend/, frontend/, e2e/. Requests flow left to right and top to bottom; app/core/ and app/schemas/ are cross-cutting and are drawn in 02-backend-components." style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontColor=#475569;fontFamily=Inter;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="80" y="1000" width="1760" height="48" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

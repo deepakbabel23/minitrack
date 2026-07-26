@@ -1,0 +1,64 @@
+<mxfile host="minitrack-build-diagrams" type="device">
+  <diagram id="02-backend-components" name="02-backend-components">
+    <mxGraphModel dx="1920" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Backend components — backend/app/" style="text;html=1;align=left;verticalAlign=middle;fontSize=40;fontStyle=1;fontColor=#172033;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="80" y="40" width="1600" height="56" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="Each layer imports only downward; core/ and schemas/ are cross-cutting leaves" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontColor=#475569;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="80" y="96" width="1600" height="34" as="geometry"/></mxCell>
+        <mxCell id="grp0" value="Cross-cutting — app/core/ + app/schemas/" style="rounded=1;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=17;fontStyle=1;fillColor=#F1F5F9;opacity=35;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="95" y="270" width="385" height="640" as="geometry"/></mxCell>
+        <mxCell id="grp1" value="HTTP edge — app/api/" style="rounded=1;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=17;fontStyle=1;fillColor=#CCFBF1;opacity=35;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="560" y="275" width="800" height="230" as="geometry"/></mxCell>
+        <mxCell id="grp2" value="Business logic — app/services/" style="rounded=1;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=17;fontStyle=1;fillColor=#F3E8FF;opacity=35;strokeColor=#7C3AED;fontColor=#5B21B6;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="560" y="540" width="800" height="135" as="geometry"/></mxCell>
+        <mxCell id="grp3" value="Persistence — app/data/" style="rounded=1;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontSize=17;fontStyle=1;fillColor=#FEF3C7;opacity=35;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="560" y="710" width="800" height="200" as="geometry"/></mxCell>
+        <mxCell id="n_main" value="app/main.py
+create_app() · lifespan · middleware" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="760" y="165" width="400" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_health" value="api/routes/health.py
+GET /health · public" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="595" y="325" width="345" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_tasks" value="api/routes/tasks.py
+6 × /tasks · X-API-Key" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="970" y="325" width="355" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_deps" value="app/api/deps.py
+get_task_service → get_repository → get_settings" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#CCFBF1;strokeColor=#0D9488;fontColor=#115E59;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="595" y="425" width="730" height="60" as="geometry"/></mxCell>
+        <mxCell id="n_service" value="app/services/task_service.py
+list · get · create · replace · complete · delete" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F3E8FF;strokeColor=#7C3AED;fontColor=#5B21B6;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="595" y="575" width="730" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_repo" value="app/data/task_repository.py
+the only task SQL" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="595" y="750" width="345" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_database" value="app/data/database.py
+the only sqlite3.connect()" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="970" y="750" width="355" height="80" as="geometry"/></mxCell>
+        <mxCell id="n_db" value="backend/minitrack.db
+5 columns · 0 indexes" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#92400E;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1450" y="755" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="n_config" value="core/config.py
+Settings · @lru_cache" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="125" y="320" width="330" height="70" as="geometry"/></mxCell>
+        <mxCell id="n_logging" value="core/logging.py
+request-id ContextVar" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="125" y="402" width="330" height="70" as="geometry"/></mxCell>
+        <mxCell id="n_middleware" value="core/middleware.py
+RequestContextMiddleware" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="125" y="484" width="330" height="70" as="geometry"/></mxCell>
+        <mxCell id="n_security" value="core/security.py
+X-API-Key · hmac.compare_digest" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="125" y="566" width="330" height="70" as="geometry"/></mxCell>
+        <mxCell id="n_errors" value="core/errors.py
+TaskNotFound → 404 · 422 join" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="125" y="648" width="330" height="70" as="geometry"/></mxCell>
+        <mxCell id="n_exceptions" value="core/exceptions.py
+DomainError · TaskNotFound" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="125" y="730" width="330" height="70" as="geometry"/></mxCell>
+        <mxCell id="n_schemas" value="app/schemas/
+TaskIn · Task · ErrorResponse" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#94A3B8;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="125" y="812" width="330" height="70" as="geometry"/></mxCell>
+        <mxCell id="n_seed" value="seed_data.py
++ tests/test_seed_data.py" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#F1F5F9;strokeColor=#475569;fontColor=#1E293B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1450" y="290" width="300" height="75" as="geometry"/></mxCell>
+        <mxCell id="n_facade" value="app/db.py
+DEPRECATED compatibility facade" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;shadow=1;fontSize=17;fontStyle=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#991B1B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1450" y="415" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="e0" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#0D9488;fontColor=#115E59;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_main" target="n_health"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e1" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#0D9488;fontColor=#115E59;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_main" target="n_tasks"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=1;strokeColor=#0D9488;fontColor=#115E59;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_tasks" target="n_deps"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#7C3AED;fontColor=#5B21B6;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_deps" target="n_service"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#B45309;fontColor=#92400E;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_service" target="n_repo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#B45309;fontColor=#92400E;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_repo" target="n_database"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#B45309;fontColor=#92400E;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_database" target="n_db"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=0;strokeColor=#DC2626;fontColor=#991B1B;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_seed" target="n_facade"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=1;strokeColor=#DC2626;fontColor=#991B1B;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_facade" target="n_database"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=1;strokeColor=#94A3B8;fontColor=#1E293B;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_security" target="n_tasks"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" value="" style="html=1;rounded=1;jumpStyle=arc;endArrow=block;dashed=1;strokeColor=#94A3B8;fontColor=#1E293B;fontSize=14;fontStyle=1;fontFamily=Inter;" edge="1" parent="1" source="n_errors" target="n_exceptions"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="note0" value="app/services/ never imports fastapi. It raises TaskNotFound from app/core/exceptions.py, and app/core/errors.py is the single place that turns a domain exception into an HTTP status." style="shape=note;whiteSpace=wrap;html=1;size=14;dashed=1;align=left;spacingLeft=6;fontSize=14;fillColor=#F3E8FF;strokeColor=#7C3AED;fontColor=#5B21B6;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1400" y="545" width="400" height="160" as="geometry"/></mxCell>
+        <mxCell id="note1" value="app/db.py is kept only so seed_data.py and the legacy tests/test_seed_data.py keep working. It is on no HTTP request path. Never build a new feature on it." style="shape=note;whiteSpace=wrap;html=1;size=14;dashed=1;align=left;spacingLeft=6;fontSize=14;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#991B1B;fontFamily=Inter;" vertex="1" parent="1"><mxGeometry x="1400" y="875" width="400" height="130" as="geometry"/></mxCell>
+        <mxCell id="footnote" value="Reading the diagram: solid arrows are imports/calls, dashed are wiring and cross-cutting use. Nothing in services/ or data/ points back up into api/." style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontColor=#475569;fontFamily=Inter;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="80" y="1000" width="1760" height="48" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

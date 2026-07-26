@@ -15,37 +15,56 @@ that loop and been refactored into a layered backend; see
 > build here pays off again on Day 14.
 
 ## Stack
-FastAPI · plain `sqlite3` (standard library) · pytest. No ORM, no Docker, no
+**Backend:** Python 3.12 · FastAPI 0.115.6 · Pydantic 2.10.4 · Uvicorn 0.34.0 ·
+plain `sqlite3` (standard library) · pytest 8.3.4. No ORM, no Docker, no
 external services, no Anthropic API key. (The app does have its own optional
 `X-API-Key` header auth — see [Run it](#run-it) — which is unrelated.)
 
+**Frontend:** React 19.2 · Vite 8.1 · TypeScript 6.0 · Vitest 4.1 (see
+[frontend/](frontend)). **End-to-end:** Playwright 1.62 (see [e2e/](e2e)).
+
+Exact pinned versions and the guardrails that go with them live in
+[CLAUDE.md](CLAUDE.md); the lockfiles are the source of truth.
+
+Want the picture rather than the prose? [docs/diagrams/](docs/diagrams/) has the
+system architecture, per-layer component diagrams, eight end-to-end sequence
+diagrams, and the data model.
+
+## Layout
+
+Three peer modules, each with its own dependencies and its own test suite.
+
 ```
 minitrack/
-├─ app/
-│  ├─ main.py         # create_app() factory + lifespan (composition root)
-│  ├─ db.py           # deprecated facade — kept for seed_data.py + legacy tests
-│  ├─ api/             # routers (health, tasks) + dependency wiring
-│  ├─ schemas/         # Pydantic request/response models + validation
-│  ├─ services/        # business logic (framework-agnostic)
-│  ├─ data/            # the only code that touches SQLite
-│  └─ core/            # config, logging, X-API-Key auth, error handling
-├─ tests/
-│  ├─ conftest.py      # shared fixtures (auth-aware client, fake repo)
-│  ├─ unit/            # schema + service tests, no SQLite
-│  └─ integration/     # TestClient-driven HTTP tests
+├─ backend/           # FastAPI + sqlite3          pytest      34 tests
+│  ├─ app/
+│  │  ├─ main.py       # create_app() factory + lifespan (composition root)
+│  │  ├─ db.py         # deprecated facade — kept for seed_data.py + legacy tests
+│  │  ├─ api/          # routers (health, tasks) + dependency wiring
+│  │  ├─ schemas/      # Pydantic request/response models + validation
+│  │  ├─ services/     # business logic (framework-agnostic)
+│  │  ├─ data/         # the only code that touches SQLite
+│  │  └─ core/         # config, logging, X-API-Key auth, error handling
+│  ├─ tests/           # conftest.py + unit/ + integration/
+│  ├─ requirements.txt
+│  ├─ .env.example     # MINITRACK_API_KEYS and other config
+│  └─ seed_data.py     # optional demo data
+├─ frontend/          # React + Vite + TypeScript   vitest      82 tests
+├─ e2e/               # Playwright over both halves playwright  16 tests
+├─ docs/diagrams/     # architecture, component and sequence diagrams
+├─ .claude/agents/    # frontend-reviewer + the three Playwright agents
 ├─ ARCHITECTURE.md    # layered design spec — the structural source of truth
-├─ spec.md            # behavioral contracts the code-reviewer subagent checks
+├─ spec.md            # behavioral contracts a review pass checks against
 ├─ CLAUDE.md          # project context Claude Code reads every session
-├─ .claude/agents/    # the read-only frontend-reviewer subagent
-├─ frontend/          # React + Vite + TypeScript SPA over this API
-├─ requirements.txt
-├─ .env.example       # MINITRACK_API_KEYS and other config
-└─ seed_data.py       # optional demo data
+├─ DESIGN.md          # the "MiniTrack Precision" design system
+├─ CODE_REVIEW.md     # findings from the full-codebase audit
+└─ src/styles/        # design-system CSS; frontend/ copies it byte-for-byte
 ```
 
 ## Run it
 ```bash
-python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
+cd backend
+python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env                                   # set MINITRACK_API_KEYS
 uvicorn app.main:app --reload --env-file .env
@@ -101,10 +120,21 @@ contracts:
 4. ~~`completed` filter ignored~~ → now filters, plus `limit`/`offset` pagination.
 
 ## Tests
+
+One suite per module. CI runs all three —
+[.github/workflows/verify.yml](.github/workflows/verify.yml).
+
 ```bash
-pytest -q
+cd backend  && pytest -q                                     # 34
+cd frontend && npm run typecheck && npm run lint && npm test # 82
+cd e2e      && npx playwright test                           # 16
 ```
-31 tests across `tests/unit/` (schema validation, service logic against a fake
-repository) and `tests/integration/` (auth, health, full `/tasks` CRUD via
-`TestClient`), plus the original `tests/test_delete_task.py` and
+
+The backend suite splits into `tests/unit/` (schema validation, service logic
+against a fake repository) and `tests/integration/` (auth, health, full `/tasks`
+CRUD via `TestClient`), plus the original `tests/test_delete_task.py` and
 `tests/test_seed_data.py`.
+
+The e2e suite boots both halves itself, so it is the one that proves they work
+together — run it after any change crossing the API boundary. See
+[e2e/README.md](e2e/README.md).
