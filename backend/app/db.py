@@ -1,12 +1,17 @@
 """Deprecated compatibility facade over app.data.
 
-Kept so existing callers (seed_data.py, tests/test_seed_data.py) that
-import `app.db` and monkeypatch `db.DB_PATH` keep working unchanged.
-`DB_PATH` is read at call time via the closure below, which is exactly
-what makes `monkeypatch.setattr(db, "DB_PATH", ...)` still work.
+Kept so the two callers that predate the layered refactor -- seed_data.py and
+tests/test_seed_data.py -- keep working unchanged. Both import `app.db` and the
+test monkeypatches `db.DB_PATH`; that works because every function below reads
+the module global at call time, the ordinary way Python resolves globals.
 
-New code should go through app.api.deps / app.services.task_service
-instead -- see ARCHITECTURE.md section 6.
+This facade is on no HTTP request path. New code goes through app.api.deps /
+app.services.task_service instead -- see ARCHITECTURE.md section 6.
+
+Deliberately narrow: only the three functions those two callers actually use are
+exposed. `get_task`, `update_task`, `set_completed` and `delete_task` were also
+forwarded here once, with no callers anywhere; use TaskRepository directly if you
+need them.
 """
 from pathlib import Path
 from typing import Optional
@@ -29,23 +34,5 @@ def get_all_tasks() -> list[dict]:
     return _repo().list_tasks()
 
 
-def get_task(task_id: int) -> Optional[dict]:
-    return _repo().get_task(task_id)
-
-
 def create_task(title: str, description: Optional[str], priority: str) -> dict:
     return _repo().create_task(title, description, priority)
-
-
-def update_task(
-    task_id: int, title: str, description: Optional[str], priority: str
-) -> Optional[dict]:
-    return _repo().update_task(task_id, title, description, priority)
-
-
-def set_completed(task_id: int, completed: bool) -> Optional[dict]:
-    return _repo().set_completed(task_id, completed)
-
-
-def delete_task(task_id: int) -> bool:
-    return _repo().delete_task(task_id)

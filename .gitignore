@@ -47,7 +47,8 @@ env/
 .pytest_cache/
 .coverage
 
-# Claude Code — personal/machine-local settings (shared settings.json IS tracked)
+# Claude Code — machine-local permissions only. A shared .claude/settings.json
+# would be tracked, but this repo has none; see .claude/README.md.
 .claude/settings.local.json
 
 # Playwright MCP browser scratch (aria snapshots, screenshots)

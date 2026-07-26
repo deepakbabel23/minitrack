@@ -180,6 +180,15 @@ in that layer's vocabulary.
   HTTP error — that boundary is inherited verbatim from today's `db.py` and from
   [CLAUDE.md](CLAUDE.md).
 
+**The one exception: the composition root.** [app/api/deps.py](backend/app/api/deps.py)
+imports `app.data` directly, skipping the service layer, because *something* has to
+construct the object graph — `get_repository()` builds a `TaskRepository` over a connection
+factory and hands it to `TaskService`. That is wiring, not a call: no request-handling code
+path crosses a layer, and `app/api/routes/tasks.py` never touches `app.data` at all. §3's
+downward-import rule (line 81) permits it; the sentence above is about *runtime
+collaboration*, not construction. Keep the exception confined to `deps.py` — the moment a
+router or a service reaches past its neighbour, the rule is genuinely broken.
+
 > Traces A–C below are the backend half in ASCII. Full-stack sequence diagrams for these
 > and five more flows — including the browser and React layers — are in
 > [docs/diagrams/sequences.md](docs/diagrams/sequences.md); the middleware ordering is
