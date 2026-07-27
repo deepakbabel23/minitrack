@@ -45,13 +45,15 @@ minitrack/
 │  │  ├─ services/     # business logic (framework-agnostic)
 │  │  ├─ data/         # the only code that touches SQLite
 │  │  └─ core/         # config, logging, X-API-Key auth, error handling
-│  ├─ tests/           # conftest.py + unit/ + integration/
+│  ├─ tests/           # unit/ + integration/ + test_architecture.py (layer rules)
+│  ├─ pyproject.toml   # pytest config — run pytest from here, not the repo root
 │  ├─ requirements.txt
 │  ├─ .env.example     # MINITRACK_API_KEYS and other config
 │  └─ seed_data.py     # optional demo data
 ├─ frontend/          # React + Vite + TypeScript   vitest      86 tests
 ├─ e2e/               # Playwright over both halves playwright  16 tests
 ├─ docs/diagrams/     # architecture, component and sequence diagrams
+├─ .github/workflows/ # verify.yml — runs all three suites on every push
 ├─ .claude/agents/    # frontend-reviewer + the three Playwright agents
 ├─ ARCHITECTURE.md    # layered design spec — the structural source of truth
 ├─ spec.md            # behavioral contracts a review pass checks against
@@ -61,11 +63,16 @@ minitrack/
 ```
 
 ## Run it
+
+The venv must be **Python 3.12** (see [.python-version](backend/.python-version)) —
+name the interpreter explicitly, because `python3` on many machines is now 3.14
+and the pinned dependencies don't build there.
+
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
+python3.12 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env                                   # set MINITRACK_API_KEYS
+cp .env.example .env                                    # set MINITRACK_API_KEYS
 uvicorn app.main:app --reload --env-file .env
 ```
 Open the interactive docs at **http://127.0.0.1:8000/docs**. Without
@@ -93,12 +100,13 @@ python seed_data.py
 ## Frontend
 A React + Vite + TypeScript SPA lives in [`frontend/`](frontend) and consumes
 this API. There are no accounts — you connect with an API key rather than
-signing in. Start the backend first with `MINITRACK_CORS_ORIGINS` set (see
-`.env.example`), then:
+signing in. Start the backend first with `MINITRACK_CORS_ORIGINS` set (it is in
+[backend/.env.example](backend/.env.example) already) — leave it empty and
+CORSMiddleware is never installed, so every request fails its preflight.
 
 ```bash
 cd frontend
-npm install
+npm ci                                         # npm install if you're changing deps
 npm run dev                                    # http://localhost:5173
 npm run typecheck && npm run lint && npm test
 ```
@@ -114,8 +122,8 @@ They've since been closed via a layered refactor — see
 sequence that closed them, and [spec.md](spec.md) for the resulting behavioral
 contracts:
 1. ~~No DELETE endpoint~~ → `DELETE /tasks/{id}`, backed by `TaskRepository.delete_task`.
-2. ~~No input validation~~ → non-blank title + `low|medium|high` priority, enforced in `app/schemas/task.py`.
-3. ~~No tests~~ → unit + integration suite in `tests/`.
+2. ~~No input validation~~ → non-blank title + `low|medium|high` priority, enforced in `backend/app/schemas/task.py`.
+3. ~~No tests~~ → unit + integration suite in `backend/tests/`.
 4. ~~`completed` filter ignored~~ → now filters, plus `limit`/`offset` pagination.
 
 ## Tests
@@ -129,10 +137,18 @@ cd frontend && npm run typecheck && npm run lint && npm test # 86
 cd e2e      && npx playwright test                           # 16
 ```
 
-The backend suite splits into `tests/unit/` (schema validation, service logic
-against a fake repository) and `tests/integration/` (auth, health, full `/tasks`
-CRUD via `TestClient`), plus the original `tests/test_delete_task.py` and
-`tests/test_seed_data.py`.
+The backend suite splits into `tests/unit/` (11 — schema validation, service
+logic against a fake repository), `tests/integration/` (20 — auth, health, full
+`/tasks` CRUD via `TestClient`), `tests/test_architecture.py` (20 — see below),
+plus the original `tests/test_delete_task.py` and `tests/test_seed_data.py` (3).
+
+**The architecture rules are enforced, not just documented.**
+[backend/tests/test_architecture.py](backend/tests/test_architecture.py) and
+[frontend/src/test/architecture.test.ts](frontend/src/test/architecture.test.ts)
+fail the build if a layer imports upward, if the service layer transitively
+reaches FastAPI, if SQL escapes `app/data/`, if the deprecated `app/db.py` ends
+up on the request path, or if `fetch` escapes `src/api/client.ts`. Breaking one
+of those is otherwise invisible until something unrelated goes wrong.
 
 The e2e suite boots both halves itself, so it is the one that proves they work
 together — run it after any change crossing the API boundary. See
