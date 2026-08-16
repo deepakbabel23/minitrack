@@ -163,7 +163,7 @@ app/
 | `api/routes/health.py` | Liveness endpoint (public). | `router`, `health()` | fastapi → main |
 | `api/routes/tasks.py` | The six task endpoints; thin controllers. | `router` (with `dependencies=[Depends(require_api_key)]`) | fastapi, schemas, api/deps, core/security → main |
 | `main.py` | Composition root. | `create_app()`, `app`, `lifespan` | everything | (entrypoint) |
-| `db.py` | Deprecated facade preserving the test seam. | `DB_PATH`, `init_db()`, `get_all_tasks()`, `get_task()`, `create_task()`, `update_task()`, `set_completed()`, `delete_task()` | data → seed_data.py, legacy tests |
+| `db.py` | Deprecated facade preserving the test seam. Deliberately narrow — only the three functions its two callers actually use. | `DB_PATH`, `init_db()`, `get_all_tasks()`, `create_task()` | data → seed_data.py, legacy tests |
 
 ---
 
@@ -330,12 +330,13 @@ def _repo() -> TaskRepository:
 
 def init_db() -> None:            init_schema(DB_PATH)
 def get_all_tasks() -> list[dict]: return _repo().list_tasks()
-def get_task(task_id):            return _repo().get_task(task_id)
 def create_task(title, description, priority): return _repo().create_task(title, description, priority)
-def update_task(task_id, title, description, priority): return _repo().update_task(task_id, title, description, priority)
-def set_completed(task_id, completed):         return _repo().set_completed(task_id, completed)
-def delete_task(task_id) -> bool:              return _repo().delete_task(task_id)
 ```
+
+Deliberately narrow: only the three functions its two callers (`seed_data.py`,
+`tests/test_seed_data.py`) actually use are exposed. `get_task`, `update_task`,
+`set_completed` and `delete_task` were also forwarded here once, with no callers
+anywhere, and have since been removed — use `TaskRepository` directly if you need them.
 
 New production code and new tests use the cleaner seam (override `get_settings` /
 `get_repository`, or set `MINITRACK_DB_PATH`); legacy tests keep using `db.DB_PATH`.
@@ -565,8 +566,9 @@ order; do not batch.
 | 9 | Cross-cutting niceties (each its own PIRV): request-id middleware + `ErrorResponse` polish; pagination; CORS (off by default); OpenAPI tags/metadata; `.env.example`; optional `/health/ready`; optional `pyproject.toml` pytest config. | Additive; defaults preserve current behavior. |
 | 10 | Security/conventions hardening pass (full-codebase review, see [CODE_REVIEW.md](CODE_REVIEW.md)): gitignore `.env` + rotate the key that leaked into `.env.example`; fix `hmac.compare_digest` raising on a non-ASCII `X-API-Key`; split `DomainError`/`TaskNotFound` into framework-free `core/exceptions.py` so `services/task_service.py`'s "no FastAPI import" claim actually holds; consolidate `GET /tasks` pagination validation into `TaskListQuery` as a single FastAPI query-param model instead of duplicating bounds in the route. | Same routes/behavior/status codes; only the internal module boundary and secret values changed. |
 
-**Old → new symbol map:** `TaskIn`/`Task` → `schemas/task.py`; the six `db.*` functions →
-`TaskRepository` methods (same names) + `app/db.py` facade; per-route `HTTPException(404)` →
+**Old → new symbol map:** `TaskIn`/`Task` → `schemas/task.py`; the original `db.*` functions →
+`TaskRepository` methods (same names), with `app/db.py` kept only as a narrow facade over the
+three still-used by `seed_data.py`/`tests/test_seed_data.py`; per-route `HTTPException(404)` →
 `TaskService` raising `TaskNotFound` + `core/errors.py` handler; `@app.on_event("startup")` →
 `lifespan` + `init_schema`; `print(...)` → `logger`.
 
