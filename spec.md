@@ -40,7 +40,7 @@ Verified by `tests/test_seed_data.py`.
 **Contract:** `DELETE /tasks/{id}`
 - Success → **204 No Content** with an empty body; the row is removed, so a
   follow-up `GET /tasks/{id}` returns **404**.
-- Unknown id → **404** (`{"detail": "Task not found"}`).
+- Unknown id → **404** (`{"detail": "Task not found", "request_id": "..."}`).
 
 **Data layer:** `TaskRepository.delete_task(task_id)` returns `True` if a row was deleted,
 `False` if the id didn't exist — no HTTP concerns in the DB layer.
